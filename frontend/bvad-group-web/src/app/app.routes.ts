@@ -46,6 +46,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'contracts',
+        loadComponent: () =>
+          import('./features/contracts/contract-list/contract-list.component').then(
+            (m) => m.ContractListComponent,
+          ),
+      },
+      {
         path: 'org-chart',
         loadComponent: () =>
           import('./features/org-chart/org-chart/org-chart.component').then(

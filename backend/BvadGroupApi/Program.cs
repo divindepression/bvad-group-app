@@ -68,6 +68,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IUserProvisioningService, UserProvisioningService>();
 builder.Services.AddScoped<IOrgChartService, OrgChartService>();
+builder.Services.AddScoped<IContractService, ContractService>();
+builder.Services.AddScoped<IContractPdfService, ContractPdfService>();
 
 
 var app = builder.Build();

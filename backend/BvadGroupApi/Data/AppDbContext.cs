@@ -12,6 +12,7 @@ namespace BvadGroupApi.Data
         public DbSet<User> Users { get; set; }
         public DbSet<UserCompany> UserCompanies { get; set; }
         public DbSet<Employee> Employees { get; set; }
+        public DbSet<Contract> Contracts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -104,6 +105,41 @@ namespace BvadGroupApi.Data
                 entity.HasOne(e => e.Manager)
                       .WithMany()
                       .HasForeignKey(e => e.ManagerId)
+                      .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            // ========================================
+            // 📄 Configuration Contract
+            // ========================================
+            modelBuilder.Entity<Contract>(entity =>
+            {
+                entity.HasIndex(c => c.ContractNumber).IsUnique();
+                entity.Property(c => c.ContractNumber).HasMaxLength(50).IsRequired();
+                entity.Property(c => c.Position).HasMaxLength(150).IsRequired();
+                entity.Property(c => c.Department).HasMaxLength(100);
+                entity.Property(c => c.Currency).HasMaxLength(10).IsRequired();
+                entity.Property(c => c.DocumentUrl).HasMaxLength(500);
+                entity.Property(c => c.DocumentFileName).HasMaxLength(300);
+                entity.Property(c => c.SpecialClauses).HasMaxLength(4000);
+                entity.Property(c => c.Notes).HasMaxLength(2000);
+                entity.Property(c => c.Salary).HasPrecision(18, 2);
+
+                // Employee
+                entity.HasOne(c => c.Employee)
+                      .WithMany()
+                      .HasForeignKey(c => c.EmployeeId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Company
+                entity.HasOne(c => c.Company)
+                      .WithMany()
+                      .HasForeignKey(c => c.CompanyId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // CreatedBy
+                entity.HasOne(c => c.CreatedBy)
+                      .WithMany()
+                      .HasForeignKey(c => c.CreatedById)
                       .OnDelete(DeleteBehavior.SetNull);
             });
 

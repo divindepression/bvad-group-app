@@ -1,0 +1,199 @@
+<div class="max-w-7xl mx-auto space-y-6">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
+        📄 Contrats
+      </h1>
+      <p class="text-slate-400 text-sm mt-1">
+        Filiale : <span class="text-white">{{ auth.currentCompany()?.name }}</span>
+      </p>
+    </div>
+
+    <button
+      (click)="openAdd()"
+      class="bg-bvad-secondary hover:bg-amber-600 text-white font-semibold px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-lg"
+    >
+      ➕ Nouveau contrat
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-3 gap-3 sm:gap-4">
+    <div class="bg-slate-800/60 rounded-xl p-4 border border-slate-700">
+      <div class="text-slate-400 text-xs uppercase">Total</div>
+      <div class="text-2xl sm:text-3xl font-bold text-white mt-1">{{ totalCount }}</div>
+    </div>
+    <div class="bg-green-500/10 rounded-xl p-4 border border-green-500/30">
+      <div class="text-green-400 text-xs uppercase">En cours</div>
+      <div class="text-2xl sm:text-3xl font-bold text-white mt-1">{{ activeCount }}</div>
+    </div>
+    <div class="bg-orange-500/10 rounded-xl p-4 border border-orange-500/30">
+      <div class="text-orange-400 text-xs uppercase">Expire bientôt</div>
+      <div class="text-2xl sm:text-3xl font-bold text-white mt-1">{{ expiringCount }}</div>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="bg-slate-800/60 rounded-xl p-4 border border-slate-700 flex flex-col sm:flex-row gap-3">
+    <select
+      [ngModel]="statusFilter()"
+      (ngModelChange)="statusFilter.set($event); load()"
+      class="w-full sm:w-auto px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-bvad-secondary"
+    >
+      <option value="">Tous les statuts</option>
+      <option value="Draft">Brouillon</option>
+      <option value="Active">En cours</option>
+      <option value="Suspended">Suspendu</option>
+      <option value="Terminated">Rompu</option>
+      <option value="Expired">Expiré</option>
+      <option value="Renewed">Renouvelé</option>
+    </select>
+
+    <label class="flex items-center gap-2 text-white cursor-pointer px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg">
+      <input
+        type="checkbox"
+        [checked]="expiringOnly()"
+        (change)="expiringOnly.set(!expiringOnly()); load()"
+        class="w-4 h-4"
+      />
+      ⚠ Expire bientôt uniquement
+    </label>
+  </div>
+
+  <!-- Liste -->
+  <div *ngIf="loading()" class="text-center text-slate-400 py-10">Chargement...</div>
+
+  <div
+    *ngIf="!loading() && contracts().length === 0"
+    class="text-center text-slate-500 py-16 bg-slate-800/40 rounded-xl border border-dashed border-slate-700"
+  >
+    <div class="text-6xl mb-3">📄</div>
+    Aucun contrat trouvé.
+  </div>
+
+  <div
+    *ngIf="!loading() && contracts().length > 0"
+    class="grid grid-cols-1 lg:grid-cols-2 gap-4"
+  >
+    <div
+      *ngFor="let c of contracts()"
+      class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden"
+      [class.border-orange-500]="c.isExpiringSoon"
+      [class.border-red-500]="c.isExpired"
+    >
+      <div class="h-2" [style.background]="c.companyColor"></div>
+
+      <div class="p-5 space-y-4">
+        <!-- Header -->
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <div class="text-xs text-slate-500 mb-1">{{ c.contractNumber }}</div>
+            <h3 class="text-white font-semibold truncate">{{ c.employeeName }}</h3>
+            <p class="text-slate-400 text-sm truncate">{{ c.position }}</p>
+            <p class="text-slate-500 text-xs">
+              {{ c.companyLogo }} {{ c.companyName }}
+            </p>
+          </div>
+
+          <div class="flex flex-col gap-1 items-end">
+            <span class="text-xs px-2 py-1 rounded-full border" [ngClass]="statusColor(c.status)">
+              {{ statusLabel(c.status) }}
+            </span>
+            <span class="text-xs px-2 py-1 rounded-full bg-slate-700 text-slate-200">
+              {{ typeLabel(c.contractType) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Alerte expiration -->
+        <div
+          *ngIf="c.isExpiringSoon && !c.isExpired"
+          class="bg-orange-500/10 border border-orange-500/30 text-orange-300 text-xs p-2 rounded-lg"
+        >
+          ⚠ Expire dans {{ c.remainingDays }} jour(s)
+        </div>
+        <div
+          *ngIf="c.isExpired"
+          class="bg-red-500/10 border border-red-500/30 text-red-300 text-xs p-2 rounded-lg"
+        >
+          🚨 Contrat expiré
+        </div>
+
+        <!-- Infos -->
+        <div class="grid grid-cols-2 gap-3 text-sm text-slate-400">
+          <div>
+            <div class="text-xs text-slate-500">Début</div>
+            <div class="text-slate-200">{{ c.startDate | date:'dd/MM/yyyy' }}</div>
+          </div>
+          <div *ngIf="c.endDate">
+            <div class="text-xs text-slate-500">Fin</div>
+            <div class="text-slate-200">{{ c.endDate | date:'dd/MM/yyyy' }}</div>
+          </div>
+          <div>
+            <div class="text-xs text-slate-500">Salaire</div>
+            <div class="text-green-400 font-medium">
+              {{ formatSalary(c.salary, c.currency) }}
+            </div>
+          </div>
+          <div *ngIf="c.weeklyHours">
+            <div class="text-xs text-slate-500">Heures/sem.</div>
+            <div class="text-slate-200">{{ c.weeklyHours }}h</div>
+          </div>
+        </div>
+
+        <!-- Document signé -->
+        <div
+          *ngIf="c.documentUrl"
+          class="flex items-center justify-between bg-slate-900/60 border border-slate-700 rounded-lg p-2 text-sm"
+        >
+          <span class="text-green-400 flex items-center gap-2 truncate">
+            ✅ <span class="truncate">{{ c.documentFileName }}</span>
+            <span class="text-slate-500 text-xs">({{ formatSize(c.documentSize) }})</span>
+          </span>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-wrap gap-2 pt-3 border-t border-slate-700">
+          <button
+            (click)="downloadPdf(c)"
+            class="flex-1 min-w-[120px] bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/40 text-blue-300 text-sm py-2 rounded-lg transition"
+          >
+            📥 Télécharger PDF
+          </button>
+
+          <label class="flex-1 min-w-[120px] bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-300 text-sm py-2 rounded-lg transition cursor-pointer text-center">
+            📤 Upload signé
+            <input
+              type="file"
+              accept="application/pdf"
+              class="hidden"
+              (change)="onFileSelected($event, c)"
+            />
+          </label>
+
+          <button
+            (click)="openEdit(c)"
+            class="bg-slate-700 hover:bg-slate-600 text-white text-sm px-3 py-2 rounded-lg transition"
+          >
+            ✏️
+          </button>
+          <button
+            (click)="delete(c)"
+            class="bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-300 px-3 py-2 rounded-lg text-sm transition"
+          >
+            🗑
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<app-contract-form
+  *ngIf="showForm()"
+  attr.contract="{{ editingContract() }}"
+  (closed)="onFormClosed($event)"
+></app-contract-form>
