@@ -1,0 +1,79 @@
+<div class="max-w-full mx-auto space-y-4">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
+        🌳 Organigramme
+      </h1>
+      <p class="text-slate-400 text-sm mt-1">
+        Filiale : <span class="text-white font-medium">{{ auth.currentCompany()?.name }}</span>
+      </p>
+    </div>
+
+    <!-- Contrôles zoom -->
+    <div class="flex items-center gap-2 bg-slate-800/60 rounded-lg p-1">
+      <button
+        (click)="zoomOut()"
+        class="w-8 h-8 rounded-md bg-slate-700 hover:bg-slate-600 text-white transition flex items-center justify-center"
+      >
+        ➖
+      </button>
+      <button
+        (click)="resetZoom()"
+        class="px-3 h-8 rounded-md text-white text-sm hover:bg-slate-700 transition"
+      >
+        {{ zoom() }}%
+      </button>
+      <button
+        (click)="zoomIn()"
+        class="w-8 h-8 rounded-md bg-slate-700 hover:bg-slate-600 text-white transition flex items-center justify-center"
+      >
+        ➕
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading()" class="text-center text-slate-400 py-16">
+    Chargement de l'organigramme...
+  </div>
+
+  <!-- Vide -->
+  <div
+    *ngIf="!loading() && roots().length === 0"
+    class="text-center text-slate-500 py-16 bg-slate-800/40 rounded-xl border border-dashed border-slate-700"
+  >
+    <div class="text-6xl mb-3">🌳</div>
+    Aucun employé pour cette filiale.
+  </div>
+
+  <!-- Arbre -->
+  <div
+    *ngIf="!loading() && roots().length > 0"
+    class="overflow-auto bg-slate-900/40 border border-slate-800 rounded-xl p-6 sm:p-10"
+    style="min-height: 500px;"
+  >
+    <div
+      class="flex justify-center items-start gap-12 min-w-max transition-transform origin-top"
+      [style.transform]="'scale(' + (zoom() / 100) + ')'"
+    >
+      <app-org-node
+        *ngFor="let root of roots()"
+        [node]="root"
+        [isRoot]="true"
+      ></app-org-node>
+    </div>
+  </div>
+
+  <!-- Légende -->
+  <div class="flex flex-wrap gap-3 text-xs text-slate-400 justify-center pt-4">
+    <span>👑 PDG</span>
+    <span>⭐ DGA</span>
+    <span>💰 CFO</span>
+    <span>💼 CHRO</span>
+    <span>🎯 CTO</span>
+    <span>⚙️ COO</span>
+  </div>
+
+</div>

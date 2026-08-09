@@ -1,0 +1,87 @@
+<div class="flex flex-col items-center relative">
+
+  <!-- Ligne verticale au-dessus (sauf pour la racine) -->
+  <div
+    *ngIf="!isRoot"
+    class="w-px h-6 bg-slate-600"
+  ></div>
+
+  <!-- Carte employé -->
+  <div
+    class="bg-slate-800 border-2 rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-2xl hover:scale-105 transition min-w-[180px] sm:min-w-[220px]"
+    [style.borderColor]="node.companyColor"
+  >
+    <div class="flex flex-col items-center text-center gap-2">
+      <!-- Avatar -->
+      <div
+        class="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-lg shadow"
+        [style.background]="node.companyColor"
+      >
+        <img
+          *ngIf="node.photoUrl && node.photoUrl.startsWith('http')"
+          [src]="node.photoUrl"
+          alt=""
+          class="w-full h-full rounded-full object-cover"
+        />
+        <span *ngIf="!node.photoUrl || !node.photoUrl.startsWith('http')">
+          {{ initials(node.fullName) }}
+        </span>
+      </div>
+
+      <!-- Position au comité -->
+      <div *ngIf="node.isCommitteeMember" class="text-xl">
+        {{ positionIcon(node.committeePosition) }}
+      </div>
+
+      <!-- Nom -->
+      <h3 class="text-white font-semibold text-sm sm:text-base leading-tight">
+        {{ node.fullName }}
+      </h3>
+
+      <!-- Poste -->
+      <p class="text-slate-400 text-xs sm:text-sm leading-tight">
+        {{ node.position }}
+      </p>
+
+      <!-- Département -->
+      <div
+        *ngIf="node.department"
+        class="text-xs px-2 py-0.5 rounded-full bg-slate-700 text-slate-300"
+      >
+        {{ node.department }}
+      </div>
+
+      <!-- Nb subordinates -->
+      <div
+        *ngIf="node.totalSubordinates > 0"
+        class="text-xs text-slate-500 mt-1"
+      >
+        👥 {{ node.totalSubordinates }} subordonné{{ node.totalSubordinates > 1 ? 's' : '' }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Enfants -->
+  <div *ngIf="node.children && node.children.length > 0" class="flex flex-col items-center">
+
+    <!-- Ligne verticale vers enfants -->
+    <div class="w-px h-6 bg-slate-600"></div>
+
+    <!-- Ligne horizontale (si plusieurs enfants) -->
+    <div
+      *ngIf="node.children.length > 1"
+      class="h-px bg-slate-600"
+      [style.width.%]="((node.children.length - 1) / node.children.length) * 100"
+      style="min-width: 100px;"
+    ></div>
+
+    <!-- Enfants côte à côte -->
+    <div class="flex items-start gap-4 sm:gap-8 pt-0">
+      <app-org-node
+        *ngFor="let child of node.children"
+        [node]="child"
+      ></app-org-node>
+    </div>
+  </div>
+
+</div>

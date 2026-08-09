@@ -25,6 +25,7 @@ export class MainLayoutComponent {
     { icon: '📊', label: 'Dashboard', route: '/dashboard' },
     { icon: '👤', label: 'Mon profil', route: '/my-profile' },
     { icon: '🏛', label: 'Comité de direction', route: '/committee' },
+    { icon: '🌳', label: 'Organigramme', route: '/org-chart' },
     { icon: '👨‍💼', label: 'Employés', route: '/employees', roles: ['SuperAdmin', 'Admin', 'Director', 'HR', 'Manager'] },
     { icon: '📄', label: 'Contrats', route: '/contracts', roles: ['SuperAdmin', 'Admin', 'Director', 'HR'] },
     { icon: '🏖', label: 'Congés', route: '/leaves' },

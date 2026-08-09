@@ -328,6 +328,31 @@ namespace BvadGroupApi.Services
             await _context.Employees.AddRangeAsync(employees);
             await _context.SaveChangesAsync();
 
+            // 🌳 LIER LES MANAGERS
+            _logger.LogInformation("🌳 Création des liens hiérarchiques...");
+
+            // Récupérer les employés par leur email (unique)
+            var jean = employees.First(e => e.Email == "j.kamga@bvad-agro.com");
+            var marie = employees.First(e => e.Email == "m.nkomo@bvad-agro.com");
+            var paul = employees.First(e => e.Email == "p.mbarga@bvad-tech.com");
+            var sarah = employees.First(e => e.Email == "s.fokam@bvad-tech.com");
+            var eric = employees.First(e => e.Email == "e.ngoumou@bvad-tech.com");
+            var christine = employees.First(e => e.Email == "c.bella@bvad-school.com");
+            var francois = employees.First(e => e.Email == "f.ateba@bvad-school.com");
+
+            // BVAD Agro : Jean → Marie
+            marie.ManagerId = jean.Id;
+
+            // BVAD Tech : Paul → Sarah, Paul → Éric
+            sarah.ManagerId = paul.Id;
+            eric.ManagerId = paul.Id;
+
+            // BVAD School : Christine → François
+            francois.ManagerId = christine.Id;
+
+            await _context.SaveChangesAsync();
+            _logger.LogInformation("✅ Liens hiérarchiques créés");
+
             // 🎯 Auto-création des comptes User pour chaque employé
             _logger.LogInformation("👤 Auto-création des comptes User...");
             foreach (var emp in employees)

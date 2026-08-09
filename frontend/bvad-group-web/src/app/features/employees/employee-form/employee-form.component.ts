@@ -30,6 +30,8 @@ export class EmployeeFormComponent implements OnInit {
   @Input() employee: Employee | null = null;
   @Output() closed = new EventEmitter<boolean>();
 
+  allEmployees = signal<Employee[]>([]);
+
   saving = signal(false);
   error = signal('');
 
@@ -45,27 +47,40 @@ export class EmployeeFormComponent implements OnInit {
       // Mode édition
       this.form = {
         firstName: this.employee.firstName,
-    lastName: this.employee.lastName,
-    middleName: this.employee.middleName,
-    email: this.employee.email,
-    phoneNumber: this.employee.phoneNumber,
-    position: this.employee.position,
-    department: this.employee.department,
-    gender: GenderValue[this.employee.gender as keyof typeof GenderValue],
-    birthDate: this.employee.birthDate?.substring(0, 10),
-    hireDate: this.employee.hireDate.substring(0, 10),
-    endDate: this.employee.endDate?.substring(0, 10),
-    contractType: ContractTypeValue[this.employee.contractType as keyof typeof ContractTypeValue],
-    salary: this.employee.salary,
-    status: EmployeeStatusValue[this.employee.status as keyof typeof EmployeeStatusValue],
-    city: this.employee.city,
-    country: this.employee.country,
-    companyId: this.employee.companyId,
-    photoUrl: this.employee.photoUrl,
-    companyRole: UserRoleValue[this.employee.companyRole as keyof typeof UserRoleValue],
-    isCommitteeMember: this.employee.isCommitteeMember,
-    committeePosition: CommitteePositionValue[this.employee.committeePosition as keyof typeof CommitteePositionValue],
-    committeePositionCustom: this.employee.committeePositionCustom
+        lastName: this.employee.lastName,
+        middleName: this.employee.middleName,
+        email: this.employee.email,
+        phoneNumber: this.employee.phoneNumber,
+        position: this.employee.position,
+        department: this.employee.department,
+        gender: GenderValue[this.employee.gender as keyof typeof GenderValue],
+        birthDate: this.employee.birthDate?.substring(0, 10),
+        hireDate: this.employee.hireDate.substring(0, 10),
+        endDate: this.employee.endDate?.substring(0, 10),
+        contractType:
+          ContractTypeValue[
+            this.employee.contractType as keyof typeof ContractTypeValue
+          ],
+        salary: this.employee.salary,
+        status:
+          EmployeeStatusValue[
+            this.employee.status as keyof typeof EmployeeStatusValue
+          ],
+        city: this.employee.city,
+        country: this.employee.country,
+        companyId: this.employee.companyId,
+        photoUrl: this.employee.photoUrl,
+        companyRole:
+          UserRoleValue[
+            this.employee.companyRole as keyof typeof UserRoleValue
+          ],
+        isCommitteeMember: this.employee.isCommitteeMember,
+        committeePosition:
+          CommitteePositionValue[
+            this.employee
+              .committeePosition as keyof typeof CommitteePositionValue
+          ],
+        committeePositionCustom: this.employee.committeePositionCustom,
       };
     } else {
       // Mode création : préremplir avec filiale active
@@ -78,6 +93,12 @@ export class EmployeeFormComponent implements OnInit {
         if (firstReal) this.form.companyId = firstReal.id;
       }
     }
+
+    // 🌳 Charger la liste des collègues pour choisir le manager
+  this.empService.getAll({ companyId: this.form.companyId }).subscribe({
+    next: (data) => this.allEmployees.set(data)
+  });
+
   }
 
   submit(): void {

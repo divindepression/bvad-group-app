@@ -5,36 +5,55 @@ export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () =>
-      import('./features/auth/login/login.component').then(m => m.LoginComponent)
+      import('./features/auth/login/login.component').then(
+        (m) => m.LoginComponent,
+      ),
   },
   {
     path: '',
     loadComponent: () =>
-      import('./layouts/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
+      import('./layouts/main-layout/main-layout.component').then(
+        (m) => m.MainLayoutComponent,
+      ),
     canActivate: [authGuard],
     children: [
       {
         path: 'dashboard',
         loadComponent: () =>
-          import('./features/dashboard/dashboard/dashboard.component').then(m => m.DashboardComponent)
+          import('./features/dashboard/dashboard/dashboard.component').then(
+            (m) => m.DashboardComponent,
+          ),
       },
       {
         path: 'my-profile',
         loadComponent: () =>
-          import('./features/profile/my-profile/my-profile.component').then(m => m.MyProfileComponent)
+          import('./features/profile/my-profile/my-profile.component').then(
+            (m) => m.MyProfileComponent,
+          ),
       },
       {
         path: 'employees',
         loadComponent: () =>
-          import('./features/employees/employee-list/employee-list.component').then(m => m.EmployeeListComponent)
+          import('./features/employees/employee-list/employee-list.component').then(
+            (m) => m.EmployeeListComponent,
+          ),
       },
       {
         path: 'committee',
         loadComponent: () =>
-          import('./features/committee/committee/committee.component').then(m => m.CommitteeComponent)
+          import('./features/committee/committee/committee.component').then(
+            (m) => m.CommitteeComponent,
+          ),
       },
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
-    ]
+      {
+        path: 'org-chart',
+        loadComponent: () =>
+          import('./features/org-chart/org-chart/org-chart.component').then(
+            (m) => m.OrgChartComponent,
+          ),
+      },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+    ],
   },
-  { path: '**', redirectTo: '' }
+  { path: '**', redirectTo: '' },
 ];

@@ -62,6 +62,18 @@
         </div>
       </div>
 
+      <!-- Manager -->
+      <div>
+        <label class="text-sm text-slate-300">Manager (chef direct)</label>
+        <select [(ngModel)]="form.managerId" name="managerId"
+          class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none">
+          <option [ngValue]="undefined">-- Aucun (racine hiérarchique) --</option>
+          <option *ngFor="let e of allEmployees()" [ngValue]="e.id" [disabled]="employee?.id === e.id">
+            {{ e.fullName }} — {{ e.position }}
+          </option>
+        </select>
+      </div>
+
       <!-- Filiale + Genre -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
