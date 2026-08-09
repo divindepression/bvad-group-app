@@ -1,0 +1,61 @@
+services:
+  # 🐘 PostgreSQL
+  postgres:
+    image: postgres:17-alpine
+    container_name: bvad-db
+    environment:
+      POSTGRES_DB: bvad_group_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+    ports:
+      - "5432:5432"
+    volumes:
+      - bvad_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bvad-net
+
+  # 🔗 Backend .NET
+  backend:
+    build:
+      context: ./backend/BvadGroupApi
+      dockerfile: Dockerfile
+    container_name: bvad-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=bvad_group_db;Username=postgres;Password=${DB_PASSWORD:-changeme}"
+      Jwt__Key: "${JWT_KEY:-BvadGroupSuperSecretJwtKey2025_MinimumLength32Chars!!!}"
+      Jwt__Issuer: "BvadGroupApi"
+      Jwt__Audience: "BvadGroupApp"
+      Jwt__ExpiresInMinutes: "480"
+      ASPNETCORE_ENVIRONMENT: Production
+    ports:
+      - "5051:8080"
+    networks:
+      - bvad-net
+
+  # 🎨 Frontend Angular
+  frontend:
+    build:
+      context: ./frontend/bvad-group-web
+      dockerfile: Dockerfile
+    container_name: bvad-web
+    depends_on:
+      - backend
+    ports:
+      - "4200:80"
+    networks:
+      - bvad-net
+
+volumes:
+  bvad_postgres_data:
+
+networks:
+  bvad-net:
+    driver: bridge

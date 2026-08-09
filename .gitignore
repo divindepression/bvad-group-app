@@ -1,0 +1,36 @@
+# ==================== .NET ====================
+**/bin/
+**/obj/
+**/*.user
+**/*.suo
+**/appsettings.json
+**/appsettings.Development.json
+
+# ==================== Node / Angular ====================
+**/node_modules/
+**/dist/
+**/.angular/
+**/coverage/
+
+# ==================== IDE ====================
+.vs/
+.vscode/
+.idea/
+*.swp
+
+# ==================== OS ====================
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# ==================== Logs ====================
+*.log
+logs/
+
+# ==================== Docker ====================
+.env
+
+# ==================== Secrets ====================
+*.pfx
+*.key
+secrets.json

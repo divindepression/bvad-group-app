@@ -1,0 +1,6 @@
+@BvadGroupApi_HostAddress = http://localhost:5051
+
+GET {{BvadGroupApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
