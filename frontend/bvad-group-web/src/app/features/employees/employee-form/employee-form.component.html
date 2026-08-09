@@ -8,10 +8,7 @@
       <h2 class="text-xl font-bold text-white flex items-center gap-2">
         {{ employee ? '✏️ Modifier' : '➕ Nouvel' }} employé
       </h2>
-      <button
-        (click)="cancel()"
-        class="text-slate-400 hover:text-white text-2xl leading-none"
-      >×</button>
+      <button (click)="cancel()" class="text-slate-400 hover:text-white text-2xl leading-none">×</button>
     </div>
 
     <!-- Body -->
@@ -21,43 +18,33 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label class="text-sm text-slate-300">Prénom *</label>
-          <input
-            [(ngModel)]="form.firstName" name="firstName" required
-            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none"
-          />
+          <input [(ngModel)]="form.firstName" name="firstName" required
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none" />
         </div>
         <div>
           <label class="text-sm text-slate-300">Nom *</label>
-          <input
-            [(ngModel)]="form.lastName" name="lastName" required
-            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none"
-          />
+          <input [(ngModel)]="form.lastName" name="lastName" required
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none" />
         </div>
       </div>
 
       <div>
         <label class="text-sm text-slate-300">Deuxième prénom</label>
-        <input
-          [(ngModel)]="form.middleName" name="middleName"
-          class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none"
-        />
+        <input [(ngModel)]="form.middleName" name="middleName"
+          class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none" />
       </div>
 
       <!-- Contact -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label class="text-sm text-slate-300">Email *</label>
-          <input
-            type="email" [(ngModel)]="form.email" name="email" required
-            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none"
-          />
+          <input type="email" [(ngModel)]="form.email" name="email" required
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none" />
         </div>
         <div>
           <label class="text-sm text-slate-300">Téléphone</label>
-          <input
-            [(ngModel)]="form.phoneNumber" name="phoneNumber"
-            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none"
-          />
+          <input [(ngModel)]="form.phoneNumber" name="phoneNumber"
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none" />
         </div>
       </div>
 
@@ -65,17 +52,13 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label class="text-sm text-slate-300">Poste *</label>
-          <input
-            [(ngModel)]="form.position" name="position" required
-            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none"
-          />
+          <input [(ngModel)]="form.position" name="position" required
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none" />
         </div>
         <div>
           <label class="text-sm text-slate-300">Département</label>
-          <input
-            [(ngModel)]="form.department" name="department"
-            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none"
-          />
+          <input [(ngModel)]="form.department" name="department"
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none" />
         </div>
       </div>
 
@@ -83,10 +66,8 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label class="text-sm text-slate-300">Filiale *</label>
-          <select
-            [(ngModel)]="form.companyId" name="companyId" required
-            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none"
-          >
+          <select [(ngModel)]="form.companyId" name="companyId" required
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none">
             <option value="">-- Sélectionner --</option>
             <option *ngFor="let c of auth.companies()" [value]="c.id">
               {{ c.logo }} {{ c.name }}
@@ -95,10 +76,8 @@
         </div>
         <div>
           <label class="text-sm text-slate-300">Genre</label>
-          <select
-            [(ngModel)]="form.gender" name="gender"
-            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none"
-          >
+          <select [(ngModel)]="form.gender" name="gender"
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none">
             <option [ngValue]="0">Homme</option>
             <option [ngValue]="1">Femme</option>
             <option [ngValue]="2">Autre</option>
@@ -110,10 +89,8 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label class="text-sm text-slate-300">Type de contrat</label>
-          <select
-            [(ngModel)]="form.contractType" name="contractType"
-            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none"
-          >
+          <select [(ngModel)]="form.contractType" name="contractType"
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none">
             <option [ngValue]="0">CDI</option>
             <option [ngValue]="1">CDD</option>
             <option [ngValue]="2">Stage</option>
@@ -123,10 +100,8 @@
         </div>
         <div>
           <label class="text-sm text-slate-300">Statut</label>
-          <select
-            [(ngModel)]="form.status" name="status"
-            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none"
-          >
+          <select [(ngModel)]="form.status" name="status"
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none">
             <option [ngValue]="0">Actif</option>
             <option [ngValue]="4">Période d'essai</option>
             <option [ngValue]="1">En congé</option>
@@ -140,24 +115,18 @@
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
           <label class="text-sm text-slate-300">Date de naissance</label>
-          <input
-            type="date" [(ngModel)]="form.birthDate" name="birthDate"
-            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none"
-          />
+          <input type="date" [(ngModel)]="form.birthDate" name="birthDate"
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none" />
         </div>
         <div>
           <label class="text-sm text-slate-300">Date d'embauche *</label>
-          <input
-            type="date" [(ngModel)]="form.hireDate" name="hireDate" required
-            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none"
-          />
+          <input type="date" [(ngModel)]="form.hireDate" name="hireDate" required
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none" />
         </div>
         <div>
           <label class="text-sm text-slate-300">Fin (si CDD)</label>
-          <input
-            type="date" [(ngModel)]="form.endDate" name="endDate"
-            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none"
-          />
+          <input type="date" [(ngModel)]="form.endDate" name="endDate"
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none" />
         </div>
       </div>
 
@@ -165,35 +134,74 @@
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
           <label class="text-sm text-slate-300">Salaire (FCFA)</label>
-          <input
-            type="number" [(ngModel)]="form.salary" name="salary"
-            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none"
-          />
+          <input type="number" [(ngModel)]="form.salary" name="salary"
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none" />
         </div>
         <div>
           <label class="text-sm text-slate-300">Ville</label>
-          <input
-            [(ngModel)]="form.city" name="city"
-            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none"
-          />
+          <input [(ngModel)]="form.city" name="city"
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none" />
         </div>
         <div>
           <label class="text-sm text-slate-300">Pays</label>
-          <input
-            [(ngModel)]="form.country" name="country"
-            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none"
-          />
+          <input [(ngModel)]="form.country" name="country"
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none" />
+        </div>
+      </div>
+
+      <!-- Rôle dans la filiale -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="text-sm text-slate-300">Rôle dans la filiale</label>
+          <select [(ngModel)]="form.companyRole" name="companyRole"
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none">
+            <option [ngValue]="14">Employé</option>
+            <option [ngValue]="11">Manager</option>
+            <option [ngValue]="12">RH</option>
+            <option [ngValue]="13">Comptable</option>
+            <option [ngValue]="10">Directeur</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2 mt-6">
+          <input type="checkbox" [(ngModel)]="form.isCommitteeMember" name="isCommitteeMember" id="committee"
+            class="w-5 h-5 rounded" />
+          <label for="committee" class="text-white cursor-pointer">
+            🏛 Membre du comité de direction
+          </label>
+        </div>
+      </div>
+
+      <!-- Poste au comité (si membre) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" *ngIf="form.isCommitteeMember">
+        <div>
+          <label class="text-sm text-slate-300">Poste au comité</label>
+          <select [(ngModel)]="form.committeePosition" name="committeePosition"
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none">
+            <option [ngValue]="1">👑 PDG</option>
+            <option [ngValue]="2">⭐ DGA</option>
+            <option [ngValue]="3">💰 CFO / DAF</option>
+            <option [ngValue]="4">💼 CHRO / DRH</option>
+            <option [ngValue]="5">🎯 CTO / DT</option>
+            <option [ngValue]="6">⚙️ COO</option>
+            <option [ngValue]="7">📈 CMO</option>
+            <option [ngValue]="8">💻 CIO</option>
+            <option [ngValue]="9">⚖️ Directeur Juridique</option>
+            <option [ngValue]="99">🎖 Poste personnalisé</option>
+          </select>
+        </div>
+        <div *ngIf="form.committeePosition === 99">
+          <label class="text-sm text-slate-300">Nom du poste personnalisé</label>
+          <input [(ngModel)]="form.committeePositionCustom" name="committeePositionCustom"
+            placeholder="Ex: Directeur R&D"
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none" />
         </div>
       </div>
 
       <!-- Photo URL -->
       <div>
         <label class="text-sm text-slate-300">Photo (URL)</label>
-        <input
-          [(ngModel)]="form.photoUrl" name="photoUrl"
-          placeholder="https://..."
-          class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none"
-        />
+        <input [(ngModel)]="form.photoUrl" name="photoUrl" placeholder="https://..."
+          class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-bvad-secondary focus:outline-none" />
       </div>
 
       <!-- Erreur -->
@@ -204,16 +212,12 @@
 
     <!-- Footer -->
     <div class="flex justify-end gap-3 p-6 border-t border-slate-700 bg-slate-900/40 rounded-b-2xl">
-      <button
-        type="button" (click)="cancel()"
-        class="px-4 py-2 text-slate-300 hover:bg-slate-700 rounded-lg transition"
-      >
+      <button type="button" (click)="cancel()"
+        class="px-4 py-2 text-slate-300 hover:bg-slate-700 rounded-lg transition">
         Annuler
       </button>
-      <button
-        type="button" (click)="submit()" [disabled]="saving()"
-        class="bg-bvad-secondary hover:bg-amber-600 disabled:opacity-50 text-white font-semibold px-6 py-2 rounded-lg transition"
-      >
+      <button type="button" (click)="submit()" [disabled]="saving()"
+        class="bg-bvad-secondary hover:bg-amber-600 disabled:opacity-50 text-white font-semibold px-6 py-2 rounded-lg transition">
         {{ saving() ? 'Enregistrement...' : (employee ? 'Modifier' : 'Créer') }}
       </button>
     </div>

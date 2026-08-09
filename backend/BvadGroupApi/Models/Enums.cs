@@ -27,4 +27,21 @@
         Freelance = 3,     // Prestation
         Apprenticeship = 4 // Apprentissage
     }
+
+    /// <summary>Postes standards du comité de direction</summary>
+    public enum CommitteePosition
+    {
+        None = 0,               // Pas membre du comité
+        CEO = 1,                // Président-Directeur Général (PDG)
+        DGA = 2,                // Directeur Général Adjoint
+        CFO = 3,                // Directeur Financier (DAF)
+        CHRO = 4,               // Directeur RH (DRH)
+        CTO = 5,                // Directeur Technique (DT / CTO)
+        COO = 6,                // Directeur des Opérations
+        CMO = 7,                // Directeur Marketing/Commercial
+        CIO = 8,                // Directeur des Systèmes d'Information
+        Legal = 9,              // Directeur Juridique
+        Custom = 99             // Poste personnalisé (voir CommitteePositionCustom)
+    }
+
 }

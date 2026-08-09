@@ -1,9 +1,7 @@
-﻿namespace BvadGroupApi.Models
+﻿using System.Reflection;
+
+namespace BvadGroupApi.Models
 {
-    /// <summary>
-    /// Représente un employé du groupe BVAD.
-    /// Un employé appartient à une filiale principale mais peut collaborer avec d'autres.
-    /// </summary>
     public class Employee
     {
         public Guid Id { get; set; } = Guid.NewGuid();
@@ -25,26 +23,38 @@
         public string? Country { get; set; }
 
         // 💼 Emploi
-        public string Position { get; set; } = string.Empty;          // Poste (ex: "Développeur senior")
-        public string? Department { get; set; }                        // Département (ex: "IT")
+        public string Position { get; set; } = string.Empty;
+        public string? Department { get; set; }
         public DateTime HireDate { get; set; } = DateTime.UtcNow;
         public DateTime? EndDate { get; set; }
         public ContractType ContractType { get; set; } = ContractType.CDI;
-        public decimal? Salary { get; set; }                           // Salaire brut mensuel
+        public decimal? Salary { get; set; }
         public EmployeeStatus Status { get; set; } = EmployeeStatus.Active;
 
-        // 🏢 Filiale principale
+        // 🎭 Rôle dans la filiale
+        public UserRole CompanyRole { get; set; } = UserRole.Employee;
+
+        // 🏛 Comité de direction
+        public bool IsCommitteeMember { get; set; } = false;
+        public CommitteePosition CommitteePosition { get; set; } = CommitteePosition.None;
+        public string? CommitteePositionCustom { get; set; }  // Si CommitteePosition == Custom
+
+        // 🌳 Hiérarchie
+        public Guid? ManagerId { get; set; }
+        public Employee? Manager { get; set; }
+
+        // 🏢 Filiale
         public Guid CompanyId { get; set; }
         public Company Company { get; set; } = null!;
 
         // 🖼 Photo
         public string? PhotoUrl { get; set; }
 
-        // 🔗 Lien optionnel avec compte User (si l'employé peut se connecter)
+        // 🔗 Compte User associé (auto-créé)
         public Guid? UserId { get; set; }
         public User? User { get; set; }
 
-        // 📝 Notes
+        // 📝 Notes internes
         public string? Notes { get; set; }
 
         // 🕒 Audit
@@ -52,7 +62,9 @@
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         // 🧮 Calculé
-        public string FullName => $"{FirstName} {(MiddleName ?? "")} {LastName}".Trim().Replace("  ", " ");
+        public string FullName => $"{FirstName} {(MiddleName ?? "")} {LastName}"
+            .Trim().Replace("  ", " ");
+
         public int? Age => BirthDate.HasValue
             ? (int)((DateTime.UtcNow - BirthDate.Value).TotalDays / 365.25)
             : null;

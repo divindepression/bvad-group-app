@@ -2,7 +2,6 @@
 
 namespace BvadGroupApi.Dtos
 {
-    // ============ Réponse (API → Front) ============
     public record EmployeeDto(
         Guid Id,
         string FirstName,
@@ -28,10 +27,16 @@ namespace BvadGroupApi.Dtos
         string CompanyName,
         string CompanyColor,
         string? CompanyLogo,
+        string CompanyRole,
+        bool IsCommitteeMember,
+        string CommitteePosition,
+        string? CommitteePositionCustom,
+        Guid? ManagerId,
+        string? ManagerName,
+        Guid? UserId,
         DateTime CreatedAt
     );
 
-    // ============ Requêtes (Front → API) ============
     public record CreateEmployeeDto(
         string FirstName,
         string LastName,
@@ -51,7 +56,12 @@ namespace BvadGroupApi.Dtos
         string? Country,
         Guid CompanyId,
         string? PhotoUrl,
-        string? Notes
+        string? Notes,
+        UserRole CompanyRole = UserRole.Employee,
+        bool IsCommitteeMember = false,
+        CommitteePosition CommitteePosition = CommitteePosition.None,
+        string? CommitteePositionCustom = null,
+        Guid? ManagerId = null
     );
 
     public record UpdateEmployeeDto(
@@ -73,10 +83,14 @@ namespace BvadGroupApi.Dtos
         string? Country,
         Guid CompanyId,
         string? PhotoUrl,
-        string? Notes
+        string? Notes,
+        UserRole CompanyRole = UserRole.Employee,
+        bool IsCommitteeMember = false,
+        CommitteePosition CommitteePosition = CommitteePosition.None,
+        string? CommitteePositionCustom = null,
+        Guid? ManagerId = null
     );
 
-    // ============ Filtres ============
     public record EmployeeFilters(
         Guid? CompanyId,
         string? Search,

@@ -1,23 +1,21 @@
 ﻿namespace BvadGroupApi.Models
 {
     /// <summary>
-    /// Rôles disponibles dans BVAD GROUP
+    /// Rôles disponibles dans le système BVAD GROUP.
+    /// Un utilisateur a un rôle GLOBAL (Système) et peut avoir des rôles spécifiques par filiale.
     /// </summary>
     public enum UserRole
     {
-        /// <summary>Super admin (Divin) - accès total à tout</summary>
-        SuperAdmin = 0,
+        // ═══ NIVEAU SYSTÈME ═══
+        SuperAdmin = 0,        // Divin - accès total absolu
+        Admin = 1,             // Admin technique
+        User = 2,              // Utilisateur standard (par défaut)
 
-        /// <summary>Directeur de filiale - gère sa filiale</summary>
-        Director = 1,
-
-        /// <summary>Ressources Humaines - gère les employés</summary>
-        HR = 2,
-
-        /// <summary>Manager - encadre une équipe</summary>
-        Manager = 3,
-
-        /// <summary>Employé simple - accès limité</summary>
-        Employee = 4
+        // ═══ NIVEAU FILIALE ═══
+        Director = 10,         // Directeur Général de la filiale
+        Manager = 11,          // Chef de département/équipe
+        HR = 12,               // Ressources Humaines
+        Accountant = 13,       // Comptable
+        Employee = 14          // Employé standard
     }
 }

@@ -1,0 +1,143 @@
+<div class="max-w-4xl mx-auto space-y-6" *ngIf="meService.profile() as p">
+
+  <!-- ============================
+       🎨 Hero card
+       ============================ -->
+  <div class="rounded-2xl overflow-hidden border shadow-2xl" [style.borderColor]="p.employee?.companyColor + '50'"
+    [style.background]="'linear-gradient(135deg, ' + (p.employee?.companyColor || '#1e3a8a') + '30, transparent)'">
+    <div class="p-6 sm:p-8">
+      <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+        <!-- Avatar -->
+        <div
+          class="w-24 h-24 sm:w-32 sm:h-32 rounded-full flex items-center justify-center text-white text-3xl sm:text-4xl font-bold shadow-2xl flex-shrink-0"
+          [style.background]="p.employee?.companyColor || '#1e3a8a'">
+          <img *ngIf="p.photoUrl && p.photoUrl.startsWith('http')" [src]="p.photoUrl" alt=""
+            class="w-full h-full rounded-full object-cover" />
+          <span *ngIf="!p.photoUrl || !p.photoUrl.startsWith('http')">
+            {{ initials(p.firstName, p.lastName) }}
+          </span>
+        </div>
+
+        <!-- Infos principales -->
+        <div class="flex-1 text-center sm:text-left">
+          <h1 class="text-2xl sm:text-3xl font-bold text-white">
+            {{ p.fullName }}
+          </h1>
+          <p *ngIf="p.employee" class="text-lg text-slate-300 mt-1">
+            {{ p.employee.position }}
+          </p>
+          <div *ngIf="p.employee" class="flex flex-wrap gap-2 mt-3 justify-center sm:justify-start">
+            <span class="px-3 py-1 rounded-full text-sm font-medium text-white"
+              [style.background]="p.employee.companyColor">
+              {{ p.employee.companyLogo }} {{ p.employee.companyName }}
+            </span>
+            <span class="px-3 py-1 rounded-full text-sm bg-slate-700 text-slate-200">
+              {{ roleLabel(p.employee.companyRole) }}
+            </span>
+            <span *ngIf="p.employee.isCommitteeMember"
+              class="px-3 py-1 rounded-full text-sm bg-bvad-secondary/20 text-bvad-secondary border border-bvad-secondary/40">
+              🏛 Comité de direction
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================
+       📇 Informations
+       ============================ -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <!-- Contact -->
+    <div class="bg-slate-800/60 rounded-xl border border-slate-700 p-5">
+      <h2 class="text-white font-semibold mb-4 flex items-center gap-2">
+        📞 Contact
+      </h2>
+      <div class="space-y-3 text-sm">
+        <div class="flex items-start gap-3">
+          <span class="text-slate-500 w-24 flex-shrink-0">Email</span>
+          <span class="text-slate-200 break-all">{{ p.email }}</span>
+        </div>
+        <div class="flex items-start gap-3" *ngIf="p.employee?.phoneNumber">
+          <span class="text-slate-500 w-24 flex-shrink-0">Téléphone</span>
+          <span class="text-slate-200">{{ p.employee?.phoneNumber }}</span>
+        </div>
+        <div class="flex items-start gap-3" *ngIf="p.employee?.city">
+          <span class="text-slate-500 w-24 flex-shrink-0">Ville</span>
+          <span class="text-slate-200">{{ p.employee?.city }}, {{ p.employee?.country }}</span>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="text-slate-500 w-24 flex-shrink-0">Username</span>
+          <span class="text-slate-200 font-mono">{{ p.username }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Emploi -->
+    <div class="bg-slate-800/60 rounded-xl border border-slate-700 p-5" *ngIf="p.employee">
+      <h2 class="text-white font-semibold mb-4 flex items-center gap-2">
+        💼 Poste
+      </h2>
+      <div class="space-y-3 text-sm">
+        <div class="flex items-start gap-3">
+          <span class="text-slate-500 w-24 flex-shrink-0">Département</span>
+          <span class="text-slate-200">{{ p.employee.department || '—' }}</span>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="text-slate-500 w-24 flex-shrink-0">Contrat</span>
+          <span class="text-slate-200">{{ p.employee.contractType }}</span>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="text-slate-500 w-24 flex-shrink-0">Embauche</span>
+          <span class="text-slate-200">{{ p.employee.hireDate | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="flex items-start gap-3" *ngIf="p.employee.endDate">
+          <span class="text-slate-500 w-24 flex-shrink-0">Fin</span>
+          <span class="text-slate-200">{{ p.employee.endDate | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="flex items-start gap-3" *ngIf="p.employee.salary">
+          <span class="text-slate-500 w-24 flex-shrink-0">Salaire</span>
+          <span class="text-green-400 font-medium">{{ formatSalary(p.employee.salary) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manager -->
+    <div class="bg-slate-800/60 rounded-xl border border-slate-700 p-5" *ngIf="p.employee?.managerName">
+      <h2 class="text-white font-semibold mb-4 flex items-center gap-2">
+        👤 Mon manager
+      </h2>
+      <div class="text-slate-200">
+        {{ p.employee?.managerName }}
+      </div>
+    </div>
+
+    <!-- Comité -->
+    <div class="bg-bvad-secondary/10 rounded-xl border border-bvad-secondary/30 p-5"
+      *ngIf="p.employee?.isCommitteeMember">
+      <h2 class="text-bvad-secondary font-semibold mb-4 flex items-center gap-2">
+        🏛 Comité de direction
+      </h2>
+      <div class="text-white text-lg font-medium">
+        {{ positionIcon(p.employee?.committeePosition || 'None') }}
+        {{ p.employee?.committeePositionCustom || positionLabel(p.employee?.committeePosition || 'None') }}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============================
+       ℹ️ Info sans employé
+       ============================ -->
+  <div *ngIf="!p.employee" class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-6 text-yellow-300">
+    ℹ️ Votre compte n'est pas encore lié à une fiche employé.
+    <br /><small>Contactez votre administrateur.</small>
+  </div>
+
+</div>
+
+<!-- Loading -->
+<div *ngIf="!meService.profile()" class="text-center text-slate-400 py-16">
+  Chargement de votre profil...
+</div>

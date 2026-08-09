@@ -86,17 +86,24 @@ namespace BvadGroupApi.Data
                 entity.Property(e => e.PhotoUrl).HasMaxLength(500);
                 entity.Property(e => e.Notes).HasMaxLength(2000);
                 entity.Property(e => e.Salary).HasPrecision(18, 2);
+                entity.Property(e => e.CommitteePositionCustom).HasMaxLength(150);
 
-                // Relation Employee → Company
+                // Company
                 entity.HasOne(e => e.Company)
                       .WithMany()
                       .HasForeignKey(e => e.CompanyId)
                       .OnDelete(DeleteBehavior.Restrict);
 
-                // Relation Employee → User (optionnelle)
+                // User (compte auto-créé)
                 entity.HasOne(e => e.User)
                       .WithMany()
                       .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                // Manager (hiérarchie)
+                entity.HasOne(e => e.Manager)
+                      .WithMany()
+                      .HasForeignKey(e => e.ManagerId)
                       .OnDelete(DeleteBehavior.SetNull);
             });
 

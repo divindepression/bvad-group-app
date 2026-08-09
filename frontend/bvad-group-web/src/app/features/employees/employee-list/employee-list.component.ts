@@ -39,7 +39,7 @@ export class EmployeeListComponent implements OnInit {
         console.log('🔄 Filiale changée →', company.name, '(isHolding:', company.isHolding, ')');
         this.load();
       }
-    });
+    }, { allowSignalWrites: true });
   }
 
   ngOnInit(): void {

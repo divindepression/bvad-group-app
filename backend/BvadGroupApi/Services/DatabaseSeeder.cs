@@ -11,11 +11,13 @@ namespace BvadGroupApi.Services
     {
         private readonly AppDbContext _context;
         private readonly ILogger<DatabaseSeeder> _logger;
+        private readonly IUserProvisioningService _userProvisioning;
 
-        public DatabaseSeeder(AppDbContext context, ILogger<DatabaseSeeder> logger)
+        public DatabaseSeeder(AppDbContext context, ILogger<DatabaseSeeder> logger, IUserProvisioningService userProvisioning)
         {
             _context = context;
             _logger = logger;
+            _userProvisioning = userProvisioning;
         }
 
         public async Task SeedAsync()
@@ -166,154 +168,180 @@ namespace BvadGroupApi.Services
             var conseil = await _context.Companies.FirstAsync(c => c.Code == "BVAD_CONSEIL");
 
             var employees = new List<Employee>
+{
+    // 🌾 BVAD Agro
+    new()
     {
-        // 🌾 BVAD Agro
-        new()
-        {
-            FirstName = "Jean", LastName = "Kamga",
-            Email = "j.kamga@bvad-agro.com",
-            PhoneNumber = "+237677000001",
-            Position = "Directeur de production",
-            Department = "Production",
-            CompanyId = agro.Id,
-            BirthDate = new DateTime(1985, 5, 12, 0, 0, 0, DateTimeKind.Utc),
-            HireDate = new DateTime(2023, 3, 1, 0, 0, 0, DateTimeKind.Utc),
-            ContractType = ContractType.CDI,
-            Salary = 450000,
-            Status = EmployeeStatus.Active,
-            City = "Douala",
-            Country = "Cameroun",
-            Gender = Gender.Male
-        },
-        new()
-        {
-            FirstName = "Marie", LastName = "Nkomo",
-            Email = "m.nkomo@bvad-agro.com",
-            PhoneNumber = "+237677000002",
-            Position = "Responsable qualité",
-            Department = "Qualité",
-            CompanyId = agro.Id,
-            BirthDate = new DateTime(1990, 8, 25, 0, 0, 0, DateTimeKind.Utc),
-            HireDate = new DateTime(2024, 1, 15, 0, 0, 0, DateTimeKind.Utc),
-            ContractType = ContractType.CDI,
-            Salary = 350000,
-            Status = EmployeeStatus.Active,
-            City = "Yaoundé",
-            Country = "Cameroun",
-            Gender = Gender.Female
-        },
+        FirstName = "Jean", LastName = "Kamga",
+        Email = "j.kamga@bvad-agro.com",
+        PhoneNumber = "+237677000001",
+        Position = "Directeur Général",
+        Department = "Direction",
+        CompanyId = agro.Id,
+        BirthDate = new DateTime(1985, 5, 12, 0, 0, 0, DateTimeKind.Utc),
+        HireDate = new DateTime(2023, 3, 1, 0, 0, 0, DateTimeKind.Utc),
+        ContractType = ContractType.CDI,
+        Salary = 800000,
+        Status = EmployeeStatus.Active,
+        City = "Douala", Country = "Cameroun",
+        Gender = Gender.Male,
+        CompanyRole = UserRole.Director,
+        IsCommitteeMember = true,
+        CommitteePosition = CommitteePosition.CEO
+    },
+    new()
+    {
+        FirstName = "Marie", LastName = "Nkomo",
+        Email = "m.nkomo@bvad-agro.com",
+        PhoneNumber = "+237677000002",
+        Position = "Directrice RH",
+        Department = "RH",
+        CompanyId = agro.Id,
+        BirthDate = new DateTime(1990, 8, 25, 0, 0, 0, DateTimeKind.Utc),
+        HireDate = new DateTime(2024, 1, 15, 0, 0, 0, DateTimeKind.Utc),
+        ContractType = ContractType.CDI,
+        Salary = 500000,
+        Status = EmployeeStatus.Active,
+        City = "Yaoundé", Country = "Cameroun",
+        Gender = Gender.Female,
+        CompanyRole = UserRole.HR,
+        IsCommitteeMember = true,
+        CommitteePosition = CommitteePosition.CHRO
+    },
 
-        // 💻 BVAD Tech
-        new()
-        {
-            FirstName = "Paul", LastName = "Mbarga",
-            Email = "p.mbarga@bvad-tech.com",
-            PhoneNumber = "+237677000003",
-            Position = "Lead Developer Full-Stack",
-            Department = "Ingénierie",
-            CompanyId = tech.Id,
-            BirthDate = new DateTime(1992, 2, 18, 0, 0, 0, DateTimeKind.Utc),
-            HireDate = new DateTime(2023, 6, 1, 0, 0, 0, DateTimeKind.Utc),
-            ContractType = ContractType.CDI,
-            Salary = 600000,
-            Status = EmployeeStatus.Active,
-            City = "Yaoundé",
-            Country = "Cameroun",
-            Gender = Gender.Male
-        },
-        new()
-        {
-            FirstName = "Sarah", LastName = "Fokam",
-            Email = "s.fokam@bvad-tech.com",
-            PhoneNumber = "+237677000004",
-            Position = "UI/UX Designer",
-            Department = "Design",
-            CompanyId = tech.Id,
-            BirthDate = new DateTime(1995, 11, 3, 0, 0, 0, DateTimeKind.Utc),
-            HireDate = new DateTime(2024, 4, 10, 0, 0, 0, DateTimeKind.Utc),
-            ContractType = ContractType.CDI,
-            Salary = 400000,
-            Status = EmployeeStatus.Active,
-            City = "Douala",
-            Country = "Cameroun",
-            Gender = Gender.Female
-        },
-        new()
-        {
-            FirstName = "Éric", LastName = "Ngoumou",
-            Email = "e.ngoumou@bvad-tech.com",
-            PhoneNumber = "+237677000005",
-            Position = "Stagiaire développeur",
-            Department = "Ingénierie",
-            CompanyId = tech.Id,
-            BirthDate = new DateTime(2001, 7, 20, 0, 0, 0, DateTimeKind.Utc),
-            HireDate = new DateTime(2025, 1, 15, 0, 0, 0, DateTimeKind.Utc),
-            EndDate = new DateTime(2025, 7, 15, 0, 0, 0, DateTimeKind.Utc),
-            ContractType = ContractType.Internship,
-            Salary = 100000,
-            Status = EmployeeStatus.Probation,
-            City = "Yaoundé",
-            Country = "Cameroun",
-            Gender = Gender.Male
-        },
+    // 💻 BVAD Tech
+    new()
+    {
+        FirstName = "Paul", LastName = "Mbarga",
+        Email = "p.mbarga@bvad-tech.com",
+        PhoneNumber = "+237677000003",
+        Position = "Directeur Technique",
+        Department = "Ingénierie",
+        CompanyId = tech.Id,
+        BirthDate = new DateTime(1992, 2, 18, 0, 0, 0, DateTimeKind.Utc),
+        HireDate = new DateTime(2023, 6, 1, 0, 0, 0, DateTimeKind.Utc),
+        ContractType = ContractType.CDI,
+        Salary = 900000,
+        Status = EmployeeStatus.Active,
+        City = "Yaoundé", Country = "Cameroun",
+        Gender = Gender.Male,
+        CompanyRole = UserRole.Director,
+        IsCommitteeMember = true,
+        CommitteePosition = CommitteePosition.CEO
+    },
+    new()
+    {
+        FirstName = "Sarah", LastName = "Fokam",
+        Email = "s.fokam@bvad-tech.com",
+        PhoneNumber = "+237677000004",
+        Position = "UI/UX Designer",
+        Department = "Design",
+        CompanyId = tech.Id,
+        BirthDate = new DateTime(1995, 11, 3, 0, 0, 0, DateTimeKind.Utc),
+        HireDate = new DateTime(2024, 4, 10, 0, 0, 0, DateTimeKind.Utc),
+        ContractType = ContractType.CDI,
+        Salary = 400000,
+        Status = EmployeeStatus.Active,
+        City = "Douala", Country = "Cameroun",
+        Gender = Gender.Female,
+        CompanyRole = UserRole.Employee
+    },
+    new()
+    {
+        FirstName = "Éric", LastName = "Ngoumou",
+        Email = "e.ngoumou@bvad-tech.com",
+        PhoneNumber = "+237677000005",
+        Position = "Stagiaire développeur",
+        Department = "Ingénierie",
+        CompanyId = tech.Id,
+        BirthDate = new DateTime(2001, 7, 20, 0, 0, 0, DateTimeKind.Utc),
+        HireDate = new DateTime(2025, 1, 15, 0, 0, 0, DateTimeKind.Utc),
+        EndDate = new DateTime(2025, 7, 15, 0, 0, 0, DateTimeKind.Utc),
+        ContractType = ContractType.Internship,
+        Salary = 100000,
+        Status = EmployeeStatus.Probation,
+        City = "Yaoundé", Country = "Cameroun",
+        Gender = Gender.Male,
+        CompanyRole = UserRole.Employee
+    },
 
-        // 🎓 BVAD School
-        new()
-        {
-            FirstName = "Christine", LastName = "Bella",
-            Email = "c.bella@bvad-school.com",
-            PhoneNumber = "+237677000006",
-            Position = "Directrice pédagogique",
-            Department = "Direction",
-            CompanyId = school.Id,
-            BirthDate = new DateTime(1980, 4, 8, 0, 0, 0, DateTimeKind.Utc),
-            HireDate = new DateTime(2023, 9, 1, 0, 0, 0, DateTimeKind.Utc),
-            ContractType = ContractType.CDI,
-            Salary = 550000,
-            Status = EmployeeStatus.Active,
-            City = "Douala",
-            Country = "Cameroun",
-            Gender = Gender.Female
-        },
-        new()
-        {
-            FirstName = "François", LastName = "Ateba",
-            Email = "f.ateba@bvad-school.com",
-            PhoneNumber = "+237677000007",
-            Position = "Formateur senior",
-            Department = "Formation",
-            CompanyId = school.Id,
-            BirthDate = new DateTime(1988, 12, 15, 0, 0, 0, DateTimeKind.Utc),
-            HireDate = new DateTime(2024, 2, 1, 0, 0, 0, DateTimeKind.Utc),
-            ContractType = ContractType.CDD,
-            Salary = 300000,
-            Status = EmployeeStatus.OnLeave,
-            City = "Yaoundé",
-            Country = "Cameroun",
-            Gender = Gender.Male
-        },
+    // 🎓 BVAD School
+    new()
+    {
+        FirstName = "Christine", LastName = "Bella",
+        Email = "c.bella@bvad-school.com",
+        PhoneNumber = "+237677000006",
+        Position = "Directrice pédagogique",
+        Department = "Direction",
+        CompanyId = school.Id,
+        BirthDate = new DateTime(1980, 4, 8, 0, 0, 0, DateTimeKind.Utc),
+        HireDate = new DateTime(2023, 9, 1, 0, 0, 0, DateTimeKind.Utc),
+        ContractType = ContractType.CDI,
+        Salary = 750000,
+        Status = EmployeeStatus.Active,
+        City = "Douala", Country = "Cameroun",
+        Gender = Gender.Female,
+        CompanyRole = UserRole.Director,
+        IsCommitteeMember = true,
+        CommitteePosition = CommitteePosition.CEO
+    },
+    new()
+    {
+        FirstName = "François", LastName = "Ateba",
+        Email = "f.ateba@bvad-school.com",
+        PhoneNumber = "+237677000007",
+        Position = "Formateur senior",
+        Department = "Formation",
+        CompanyId = school.Id,
+        BirthDate = new DateTime(1988, 12, 15, 0, 0, 0, DateTimeKind.Utc),
+        HireDate = new DateTime(2024, 2, 1, 0, 0, 0, DateTimeKind.Utc),
+        ContractType = ContractType.CDD,
+        Salary = 300000,
+        Status = EmployeeStatus.OnLeave,
+        City = "Yaoundé", Country = "Cameroun",
+        Gender = Gender.Male,
+        CompanyRole = UserRole.Employee
+    },
 
-        // 💼 BVAD Conseil
-        new()
-        {
-            FirstName = "Aline", LastName = "Tchouameni",
-            Email = "a.tchouameni@bvad-conseil.com",
-            PhoneNumber = "+237677000008",
-            Position = "Consultante senior",
-            Department = "Conseil",
-            CompanyId = conseil.Id,
-            BirthDate = new DateTime(1987, 6, 22, 0, 0, 0, DateTimeKind.Utc),
-            HireDate = new DateTime(2023, 11, 1, 0, 0, 0, DateTimeKind.Utc),
-            ContractType = ContractType.CDI,
-            Salary = 500000,
-            Status = EmployeeStatus.Active,
-            City = "Douala",
-            Country = "Cameroun",
-            Gender = Gender.Female
-        }
-    };
+    // 💼 BVAD Conseil
+    new()
+    {
+        FirstName = "Aline", LastName = "Tchouameni",
+        Email = "a.tchouameni@bvad-conseil.com",
+        PhoneNumber = "+237677000008",
+        Position = "Directrice Générale",
+        Department = "Direction",
+        CompanyId = conseil.Id,
+        BirthDate = new DateTime(1987, 6, 22, 0, 0, 0, DateTimeKind.Utc),
+        HireDate = new DateTime(2023, 11, 1, 0, 0, 0, DateTimeKind.Utc),
+        ContractType = ContractType.CDI,
+        Salary = 850000,
+        Status = EmployeeStatus.Active,
+        City = "Douala", Country = "Cameroun",
+        Gender = Gender.Female,
+        CompanyRole = UserRole.Director,
+        IsCommitteeMember = true,
+        CommitteePosition = CommitteePosition.CEO
+    }
+};
 
             await _context.Employees.AddRangeAsync(employees);
+            await _context.SaveChangesAsync();
+
+            // 🎯 Auto-création des comptes User pour chaque employé
+            _logger.LogInformation("👤 Auto-création des comptes User...");
+            foreach (var emp in employees)
+            {
+                try
+                {
+                    var user = await _userProvisioning.CreateUserForEmployeeAsync(emp);
+                    emp.UserId = user.Id;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Échec création User pour {Name}", emp.FullName);
+                }
+            }
             await _context.SaveChangesAsync();
 
             _logger.LogInformation("✅ {Count} employés créés", employees.Count);

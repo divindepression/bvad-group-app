@@ -19,9 +19,19 @@ export const routes: Routes = [
           import('./features/dashboard/dashboard/dashboard.component').then(m => m.DashboardComponent)
       },
       {
+        path: 'my-profile',
+        loadComponent: () =>
+          import('./features/profile/my-profile/my-profile.component').then(m => m.MyProfileComponent)
+      },
+      {
         path: 'employees',
         loadComponent: () =>
           import('./features/employees/employee-list/employee-list.component').then(m => m.EmployeeListComponent)
+      },
+      {
+        path: 'committee',
+        loadComponent: () =>
+          import('./features/committee/committee/committee.component').then(m => m.CommitteeComponent)
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]

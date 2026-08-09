@@ -85,6 +85,43 @@ export class AuthService {
   // ==============================
   // 💾 Storage helpers
   // ==============================
+
+  // ==============================
+// 🎭 Rôle effectif dans la filiale active
+// ==============================
+getCurrentRole(): string {
+  const user = this.currentUser();
+  const company = this.currentCompany();
+
+  // SuperAdmin / Admin voient tout partout
+  if (user?.role === 'SuperAdmin' || user?.role === 'Admin') {
+    return user.role;
+  }
+
+  // Sinon → rôle dans la filiale active
+  return company?.role || user?.role || 'User';
+}
+
+// ==============================
+// 🎭 Libellé lisible du rôle
+// ==============================
+getCurrentRoleLabel(): string {
+  const role = this.getCurrentRole();
+
+  const labels: Record<string, string> = {
+    SuperAdmin: 'Super Administrateur',
+    Admin: 'Administrateur',
+    User: 'Utilisateur',
+    Director: 'Directeur',
+    Manager: 'Manager',
+    HR: 'Ressources Humaines',
+    Accountant: 'Comptable',
+    Employee: 'Employé'
+  };
+
+  return labels[role] || role;
+}
+
   private getStoredUser(): UserDto | null {
     const stored = localStorage.getItem(USER_KEY);
     return stored ? JSON.parse(stored) : null;

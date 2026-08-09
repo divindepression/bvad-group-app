@@ -17,16 +17,24 @@ namespace BvadGroupApi.Services
     public class EmployeeService : IEmployeeService
     {
         private readonly AppDbContext _context;
+        private readonly IUserProvisioningService _userProvisioning;
+        private readonly ILogger<EmployeeService> _logger;
 
-        public EmployeeService(AppDbContext context)
+        public EmployeeService(
+            AppDbContext context,
+            IUserProvisioningService userProvisioning,
+            ILogger<EmployeeService> logger)
         {
             _context = context;
+            _userProvisioning = userProvisioning;
+            _logger = logger;
         }
 
         public async Task<List<EmployeeDto>> GetAllAsync(EmployeeFilters filters)
         {
             var query = _context.Employees
                 .Include(e => e.Company)
+                .Include(e => e.Manager)
                 .AsQueryable();
 
             if (filters.CompanyId.HasValue)
@@ -60,6 +68,7 @@ namespace BvadGroupApi.Services
         {
             var emp = await _context.Employees
                 .Include(e => e.Company)
+                .Include(e => e.Manager)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
             return emp == null ? null : ToDto(emp);
@@ -67,25 +76,8 @@ namespace BvadGroupApi.Services
 
         public async Task<EmployeeDto?> CreateAsync(CreateEmployeeDto dto)
         {
-            Console.WriteLine("═══════════════════════════════════════");
-            Console.WriteLine($"🔍 CREATE EMPLOYEE");
-            Console.WriteLine($"   Nom       : {dto.FirstName} {dto.LastName}");
-            Console.WriteLine($"   Email     : {dto.Email}");
-            Console.WriteLine($"   CompanyId : {dto.CompanyId}");
-            Console.WriteLine("═══════════════════════════════════════");
-
             var company = await _context.Companies.FindAsync(dto.CompanyId);
-            if (company == null)
-            {
-                Console.WriteLine("❌ Filiale introuvable en base !");
-                var allCompanies = await _context.Companies.Select(c => new { c.Id, c.Name }).ToListAsync();
-                Console.WriteLine("📋 Filiales disponibles :");
-                foreach (var c in allCompanies)
-                    Console.WriteLine($"   - {c.Id} : {c.Name}");
-                return null;
-            }
-
-            Console.WriteLine($"✅ Filiale trouvée : {company.Name}");
+            if (company == null) return null;
 
             var emp = new Employee
             {
@@ -107,14 +99,30 @@ namespace BvadGroupApi.Services
                 Country = dto.Country,
                 CompanyId = dto.CompanyId,
                 PhotoUrl = dto.PhotoUrl,
-                Notes = dto.Notes
+                Notes = dto.Notes,
+                CompanyRole = dto.CompanyRole,
+                IsCommitteeMember = dto.IsCommitteeMember,
+                CommitteePosition = dto.CommitteePosition,
+                CommitteePositionCustom = dto.CommitteePositionCustom,
+                ManagerId = dto.ManagerId
             };
 
             _context.Employees.Add(emp);
             await _context.SaveChangesAsync();
 
+            // 🎯 Auto-création du compte User
+            try
+            {
+                var user = await _userProvisioning.CreateUserForEmployeeAsync(emp);
+                emp.UserId = user.Id;
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Impossible de créer le compte User pour {Name}", emp.FullName);
+            }
+
             emp.Company = company;
-            Console.WriteLine($"✅ Employé créé avec ID : {emp.Id}");
             return ToDto(emp);
         }
 
@@ -122,6 +130,7 @@ namespace BvadGroupApi.Services
         {
             var emp = await _context.Employees
                 .Include(e => e.Company)
+                .Include(e => e.Manager)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
             if (emp == null) return null;
@@ -145,6 +154,11 @@ namespace BvadGroupApi.Services
             emp.CompanyId = dto.CompanyId;
             emp.PhotoUrl = dto.PhotoUrl;
             emp.Notes = dto.Notes;
+            emp.CompanyRole = dto.CompanyRole;
+            emp.IsCommitteeMember = dto.IsCommitteeMember;
+            emp.CommitteePosition = dto.CommitteePosition;
+            emp.CommitteePositionCustom = dto.CommitteePositionCustom;
+            emp.ManagerId = dto.ManagerId;
             emp.UpdatedAt = DateTime.UtcNow;
 
             if (emp.CompanyId != dto.CompanyId)
@@ -194,6 +208,13 @@ namespace BvadGroupApi.Services
                 e.Company?.Name ?? "",
                 e.Company?.Color ?? "#1e3a8a",
                 e.Company?.Logo,
+                e.CompanyRole.ToString(),
+                e.IsCommitteeMember,
+                e.CommitteePosition.ToString(),
+                e.CommitteePositionCustom,
+                e.ManagerId,
+                e.Manager?.FullName,
+                e.UserId,
                 e.CreatedAt
             );
     }
