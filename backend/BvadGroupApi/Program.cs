@@ -65,6 +65,7 @@ builder.Services.AddAuthorization();
 
 // ?? Auth service
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 
 
 var app = builder.Build();

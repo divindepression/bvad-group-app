@@ -1,0 +1,195 @@
+<div class="max-w-7xl mx-auto space-y-6">
+
+  <!-- ============================
+       📊 Header + Stats
+       ============================ -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
+        👨‍💼 Employés
+      </h1>
+      <p class="text-slate-400 text-sm mt-1">
+        Filiale : <span class="text-white">{{ auth.currentCompany()?.name }}</span>
+      </p>
+    </div>
+
+    <button
+      (click)="openAdd()"
+      class="bg-bvad-secondary hover:bg-amber-600 text-white font-semibold px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-lg"
+    >
+      <span>➕</span> Ajouter un employé
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-3 gap-3 sm:gap-4">
+    <div class="bg-slate-800/60 rounded-xl p-4 border border-slate-700">
+      <div class="text-slate-400 text-xs uppercase">Total</div>
+      <div class="text-2xl sm:text-3xl font-bold text-white mt-1">{{ totalCount }}</div>
+    </div>
+    <div class="bg-green-500/10 rounded-xl p-4 border border-green-500/30">
+      <div class="text-green-400 text-xs uppercase">Actifs</div>
+      <div class="text-2xl sm:text-3xl font-bold text-white mt-1">{{ activeCount }}</div>
+    </div>
+    <div class="bg-blue-500/10 rounded-xl p-4 border border-blue-500/30">
+      <div class="text-blue-400 text-xs uppercase">En congé</div>
+      <div class="text-2xl sm:text-3xl font-bold text-white mt-1">{{ onLeaveCount }}</div>
+    </div>
+  </div>
+
+  <!-- ============================
+       🔍 Filtres
+       ============================ -->
+  <div class="bg-slate-800/60 rounded-xl p-4 border border-slate-700 space-y-3 sm:space-y-0 sm:flex sm:gap-3">
+    <input
+      type="text"
+      [(ngModel)]="search"
+      (keyup.enter)="onSearch()"
+      placeholder="🔍 Rechercher (nom, email, poste)..."
+      class="w-full sm:flex-1 px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-bvad-secondary"
+    />
+
+    <select
+      [ngModel]="statusFilter()"
+      (ngModelChange)="statusFilter.set($event); load()"
+      class="w-full sm:w-auto px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-bvad-secondary"
+    >
+      <option value="">Tous les statuts</option>
+      <option value="Active">Actifs</option>
+      <option value="OnLeave">En congé</option>
+      <option value="Probation">Période d'essai</option>
+      <option value="Suspended">Suspendus</option>
+      <option value="Terminated">Partis</option>
+    </select>
+
+    <button
+      (click)="onSearch()"
+      class="w-full sm:w-auto bg-bvad-secondary hover:bg-amber-600 text-white px-4 py-2 rounded-lg transition"
+    >
+      Rechercher
+    </button>
+  </div>
+
+  <!-- ============================
+       📋 Liste
+       ============================ -->
+  <div *ngIf="loading()" class="text-center text-slate-400 py-10">
+    Chargement...
+  </div>
+
+  <div *ngIf="error()" class="text-center text-red-400 py-4">
+    {{ error() }}
+  </div>
+
+  <div
+    *ngIf="!loading() && employees().length === 0"
+    class="text-center text-slate-500 py-16 bg-slate-800/40 rounded-xl border border-dashed border-slate-700"
+  >
+    <div class="text-6xl mb-3">😔</div>
+    Aucun employé trouvé.
+    <br />
+    <button (click)="openAdd()" class="mt-4 text-bvad-secondary hover:underline">
+      ➕ Ajouter le premier employé
+    </button>
+  </div>
+
+  <div
+    *ngIf="!loading() && employees().length > 0"
+    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+  >
+    <div
+      *ngFor="let emp of employees()"
+      class="bg-slate-800 rounded-xl border border-slate-700 hover:border-bvad-secondary/50 transition overflow-hidden group"
+    >
+      <!-- Header avec couleur filiale -->
+      <div
+        class="h-2"
+        [style.background]="emp.companyColor"
+      ></div>
+
+      <div class="p-5">
+        <!-- Avatar + Infos -->
+        <div class="flex items-start gap-4 mb-4">
+<div
+  class="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg flex-shrink-0 overflow-hidden"
+  [style.background]="emp.companyColor"
+>
+  <img
+    *ngIf="hasValidPhoto(emp.photoUrl)"
+    [src]="emp.photoUrl"
+    alt=""
+    class="w-full h-full object-cover"
+    (error)="emp.photoUrl = undefined"
+  />
+  <span *ngIf="!hasValidPhoto(emp.photoUrl)">
+    {{ initials(emp) }}
+  </span>
+</div>
+
+          <div class="flex-1 min-w-0">
+            <h3 class="text-white font-semibold truncate">{{ emp.fullName }}</h3>
+            <p class="text-slate-400 text-sm truncate">{{ emp.position }}</p>
+            <p class="text-slate-500 text-xs mt-1 truncate">
+              {{ emp.companyLogo }} {{ emp.companyName }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Badges -->
+        <div class="flex gap-2 flex-wrap mb-4">
+          <span
+            class="text-xs px-2 py-1 rounded-full border"
+            [ngClass]="statusColor(emp.status)"
+          >
+            {{ statusLabel(emp.status) }}
+          </span>
+          <span class="text-xs px-2 py-1 rounded-full bg-slate-700 text-slate-300">
+            {{ contractLabel(emp.contractType) }}
+          </span>
+        </div>
+
+        <!-- Infos supplémentaires -->
+        <div class="space-y-1 text-sm text-slate-400">
+          <div *ngIf="emp.department" class="flex items-center gap-2">
+            <span>🏛</span> {{ emp.department }}
+          </div>
+          <div class="flex items-center gap-2 truncate">
+            <span>✉️</span> <span class="truncate">{{ emp.email }}</span>
+          </div>
+          <div *ngIf="emp.phoneNumber" class="flex items-center gap-2">
+            <span>📞</span> {{ emp.phoneNumber }}
+          </div>
+          <div *ngIf="emp.salary" class="flex items-center gap-2 text-green-400">
+            <span>💰</span> {{ formatSalary(emp.salary) }}
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-2 mt-4 pt-4 border-t border-slate-700">
+          <button
+            (click)="openEdit(emp)"
+            class="flex-1 bg-slate-700 hover:bg-slate-600 text-white text-sm py-2 rounded-lg transition"
+          >
+            ✏️ Modifier
+          </button>
+          <button
+            (click)="delete(emp)"
+            class="bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-300 px-3 py-2 rounded-lg text-sm transition"
+          >
+            🗑
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================
+     ➕ Modal Formulaire
+     ============================ -->
+<app-employee-form
+  *ngIf="showForm()"
+  [employee]="editingEmployee()"
+  (closed)="onFormClosed($event)"
+></app-employee-form>

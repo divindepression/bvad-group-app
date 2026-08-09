@@ -11,6 +11,7 @@ namespace BvadGroupApi.Data
         public DbSet<Company> Companies { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserCompany> UserCompanies { get; set; }
+        public DbSet<Employee> Employees { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -63,6 +64,42 @@ namespace BvadGroupApi.Data
                       .HasForeignKey(uc => uc.CompanyId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
+
+            // ========================================
+            // 👨‍💼 Configuration Employee
+            // ========================================
+            modelBuilder.Entity<Employee>(entity =>
+            {
+                entity.HasIndex(e => e.Email).IsUnique();
+                entity.Property(e => e.FirstName).HasMaxLength(100).IsRequired();
+                entity.Property(e => e.LastName).HasMaxLength(100).IsRequired();
+                entity.Property(e => e.MiddleName).HasMaxLength(100);
+                entity.Property(e => e.Email).HasMaxLength(200).IsRequired();
+                entity.Property(e => e.PhoneNumber).HasMaxLength(30);
+                entity.Property(e => e.Position).HasMaxLength(150).IsRequired();
+                entity.Property(e => e.Department).HasMaxLength(100);
+                entity.Property(e => e.Address).HasMaxLength(300);
+                entity.Property(e => e.City).HasMaxLength(100);
+                entity.Property(e => e.Country).HasMaxLength(100);
+                entity.Property(e => e.Nationality).HasMaxLength(100);
+                entity.Property(e => e.BirthPlace).HasMaxLength(200);
+                entity.Property(e => e.PhotoUrl).HasMaxLength(500);
+                entity.Property(e => e.Notes).HasMaxLength(2000);
+                entity.Property(e => e.Salary).HasPrecision(18, 2);
+
+                // Relation Employee → Company
+                entity.HasOne(e => e.Company)
+                      .WithMany()
+                      .HasForeignKey(e => e.CompanyId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Relation Employee → User (optionnelle)
+                entity.HasOne(e => e.User)
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.SetNull);
+            });
+
         }
     }
 }

@@ -1,0 +1,143 @@
+<div class="min-h-screen bg-bvad-dark flex">
+
+  <!-- ============================
+       📱 Overlay mobile
+       ============================ -->
+  <div
+    *ngIf="sidebarOpen()"
+    (click)="closeSidebar()"
+    class="fixed inset-0 bg-black/60 z-30 lg:hidden"
+  ></div>
+
+  <!-- ============================
+       📚 SIDEBAR
+       ============================ -->
+  <aside
+    class="fixed lg:sticky top-0 left-0 h-screen w-64 bg-slate-900 border-r border-slate-800 z-40 transform transition-transform duration-300"
+    [class.-translate-x-full]="!sidebarOpen()"
+    [class.lg:translate-x-0]="true"
+  >
+    <!-- Logo -->
+    <div class="p-6 border-b border-slate-800">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🏢</span>
+        <div>
+          <div class="text-white font-bold text-lg">
+            <span class="text-bvad-secondary">BVAD</span> GROUP
+          </div>
+          <div class="text-xs text-slate-500">Bâtir · Valoriser</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="p-4 space-y-1">
+      <a
+        *ngFor="let item of navItems"
+        [routerLink]="item.route"
+          routerLinkActive="bg-bvad-secondary/20 text-bvad-secondary border-l-4 border-bvad-secondary"
+        (click)="closeSidebar()"
+        class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 transition"
+      >
+        <span class="text-xl">{{ item.icon }}</span>
+        <span class="font-medium">{{ item.label }}</span>
+      </a>
+    </nav>
+
+    <!-- User info bas -->
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-800 bg-slate-900">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-full bg-bvad-secondary flex items-center justify-center text-white font-bold">
+          {{ auth.currentUser()?.firstName?.charAt(0) }}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-white text-sm font-medium truncate">
+            {{ auth.currentUser()?.fullName }}
+          </div>
+          <div class="text-slate-500 text-xs truncate">
+            {{ auth.currentUser()?.role }}
+          </div>
+        </div>
+      </div>
+      <button
+        (click)="logout()"
+        class="w-full text-red-400 hover:bg-red-500/10 border border-red-500/30 rounded-lg py-2 text-sm transition"
+      >
+        🚪 Déconnexion
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============================
+       📄 MAIN CONTENT
+       ============================ -->
+  <div class="flex-1 flex flex-col min-w-0">
+
+    <!-- Topbar -->
+    <header
+      class="sticky top-0 z-20 border-b border-slate-800 backdrop-blur-md bg-bvad-dark/80"
+      [style.background]="'linear-gradient(90deg, ' + (auth.currentCompany()?.color || '#1e3a8a') + '20, transparent)'"
+    >
+      <div class="flex items-center justify-between px-4 sm:px-6 py-3 gap-3">
+
+        <!-- Bouton menu mobile -->
+        <button
+          (click)="toggleSidebar()"
+          class="lg:hidden text-white text-2xl"
+        >
+          ☰
+        </button>
+
+        <!-- Sélecteur filiale -->
+        <div class="relative flex-1 max-w-xs">
+          <button
+            (click)="toggleCompanyMenu()"
+            class="w-full flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-700 hover:border-slate-600 transition text-white"
+            [style.background]="(auth.currentCompany()?.color || '#1e3a8a') + '30'"
+          >
+            <span class="text-xl">{{ auth.currentCompany()?.logo }}</span>
+            <span class="font-medium truncate flex-1 text-left">
+              {{ auth.currentCompany()?.name }}
+            </span>
+            <span class="text-slate-400">▾</span>
+          </button>
+
+          <!-- Menu déroulant -->
+          <div
+            *ngIf="companyMenuOpen()"
+            class="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl overflow-hidden z-30"
+          >
+            <button
+              *ngFor="let c of auth.companies()"
+              (click)="switchCompany(c)"
+              class="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-700 transition text-left text-white"
+            >
+              <span class="text-xl">{{ c.logo }}</span>
+              <div class="flex-1 min-w-0">
+                <div class="font-medium truncate">{{ c.name }}</div>
+                <div *ngIf="c.isHolding" class="text-xs text-slate-400">Holding</div>
+              </div>
+              <span
+                *ngIf="auth.currentCompany()?.id === c.id"
+                class="text-bvad-secondary"
+              >✓</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- User avatar (desktop) -->
+        <div class="hidden sm:flex items-center gap-2">
+          <div class="w-9 h-9 rounded-full bg-bvad-secondary flex items-center justify-center text-white font-bold text-sm">
+            {{ auth.currentUser()?.firstName?.charAt(0) }}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Contenu de la page -->
+    <main class="flex-1 p-4 sm:p-6 overflow-x-hidden">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+</div>
