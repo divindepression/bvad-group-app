@@ -1,0 +1,46 @@
+<div class="max-w-md mx-auto text-center space-y-6">
+
+  <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-8">
+    <h2 class="text-white font-semibold text-lg mb-4">📸 Photo identité officielle</h2>
+    <p class="text-slate-400 text-sm mb-6">
+      Cette photo apparaîtra sur le badge et les documents officiels.
+    </p>
+
+    <!-- Preview -->
+    <div class="mx-auto w-48 h-64 rounded-xl overflow-hidden border-2 border-slate-600 mb-6 bg-slate-900 flex items-center justify-center">
+      <img
+        *ngIf="previewUrl() as p"
+        [src]="p"
+        class="w-full h-full object-cover"
+      />
+      <img
+        *ngIf="!previewUrl() && employee.identityPhotoUrl"
+        [src]="photoUrl"
+        class="w-full h-full object-cover"
+        (error)="previewUrl.set(null)"
+      />
+      <div *ngIf="!previewUrl() && !employee.identityPhotoUrl" class="text-slate-500 text-6xl">
+        👤
+      </div>
+    </div>
+
+    <label
+      class="inline-block bg-bvad-secondary hover:bg-amber-600 text-white font-semibold px-6 py-3 rounded-lg cursor-pointer transition"
+      [class.opacity-50]="uploading()"
+    >
+      {{ uploading() ? 'Envoi en cours...' : '📤 Choisir une photo' }}
+      <input
+        type="file"
+        accept="image/*"
+        class="hidden"
+        (change)="onFile($event)"
+        [disabled]="uploading()"
+      />
+    </label>
+
+    <p class="text-slate-500 text-xs mt-4">
+      Format recommandé : photo d'identité fond neutre (JPG, PNG)
+    </p>
+  </div>
+
+</div>

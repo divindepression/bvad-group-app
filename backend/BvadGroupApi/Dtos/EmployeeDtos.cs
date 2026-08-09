@@ -34,7 +34,22 @@ namespace BvadGroupApi.Dtos
         Guid? ManagerId,
         string? ManagerName,
         Guid? UserId,
-        DateTime CreatedAt
+        DateTime CreatedAt,
+
+    // 🆕 NOUVEAUX CHAMPS
+    string? EmployeeNumber,
+    string? IdentityPhotoUrl,
+    string? SignatureUrl,
+    string? BankName,
+    string? BankAccountNumber,
+    string? MobileMoneyOperator,
+    string? MobileMoneyNumber,
+    string? EmergencyContactName,
+    string? EmergencyContactPhone,
+    string? EmergencyContactRelation,
+    string? NationalIdNumber,
+    string? SocialSecurityNumber
+
     );
 
     public record CreateEmployeeDto(

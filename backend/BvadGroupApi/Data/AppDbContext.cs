@@ -13,6 +13,7 @@ namespace BvadGroupApi.Data
         public DbSet<UserCompany> UserCompanies { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Contract> Contracts { get; set; }
+        public DbSet<EmployeeDocument> EmployeeDocuments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -89,6 +90,30 @@ namespace BvadGroupApi.Data
                 entity.Property(e => e.Salary).HasPrecision(18, 2);
                 entity.Property(e => e.CommitteePositionCustom).HasMaxLength(150);
 
+                // Nouveaux champs à configurer
+                entity.Property(e => e.EmployeeNumber).HasMaxLength(50);
+                entity.Property(e => e.PersonalEmail).HasMaxLength(200);
+                entity.Property(e => e.SecondaryPhone).HasMaxLength(30);
+                entity.Property(e => e.PostalCode).HasMaxLength(20);
+                entity.Property(e => e.MaritalStatus).HasMaxLength(50);
+                entity.Property(e => e.NationalIdNumber).HasMaxLength(50);
+                entity.Property(e => e.PassportNumber).HasMaxLength(50);
+                entity.Property(e => e.SocialSecurityNumber).HasMaxLength(50);
+                entity.Property(e => e.EmergencyContactName).HasMaxLength(200);
+                entity.Property(e => e.EmergencyContactPhone).HasMaxLength(30);
+                entity.Property(e => e.EmergencyContactRelation).HasMaxLength(50);
+                entity.Property(e => e.BankName).HasMaxLength(200);
+                entity.Property(e => e.BankAccountNumber).HasMaxLength(50);
+                entity.Property(e => e.BankIban).HasMaxLength(50);
+                entity.Property(e => e.BankSwift).HasMaxLength(20);
+                entity.Property(e => e.PaymentMethod).HasMaxLength(50);
+                entity.Property(e => e.MobileMoneyOperator).HasMaxLength(50);
+                entity.Property(e => e.MobileMoneyNumber).HasMaxLength(30);
+                entity.Property(e => e.IdentityPhotoUrl).HasMaxLength(500);
+                entity.Property(e => e.SignatureUrl).HasMaxLength(500);
+
+                entity.HasIndex(e => e.EmployeeNumber).IsUnique();
+
                 // Company
                 entity.HasOne(e => e.Company)
                       .WithMany()
@@ -141,6 +166,23 @@ namespace BvadGroupApi.Data
                       .WithMany()
                       .HasForeignKey(c => c.CreatedById)
                       .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            // ========================================
+            // 📎 Configuration EmployeeDocument
+            // ========================================
+            modelBuilder.Entity<EmployeeDocument>(entity =>
+            {
+                entity.Property(d => d.Title).HasMaxLength(200).IsRequired();
+                entity.Property(d => d.Description).HasMaxLength(1000);
+                entity.Property(d => d.FileName).HasMaxLength(300).IsRequired();
+                entity.Property(d => d.FileUrl).HasMaxLength(500).IsRequired();
+                entity.Property(d => d.ContentType).HasMaxLength(100);
+
+                entity.HasOne(d => d.Employee)
+                      .WithMany()
+                      .HasForeignKey(d => d.EmployeeId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
         }

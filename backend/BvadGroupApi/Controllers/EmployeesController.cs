@@ -3,6 +3,7 @@ using BvadGroupApi.Models;
 using BvadGroupApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BvadGroupApi.Controllers
 {
@@ -51,6 +52,82 @@ namespace BvadGroupApi.Controllers
         {
             var updated = await _service.UpdateAsync(id, dto);
             return updated == null ? NotFound() : Ok(updated);
+        }
+
+        // ═══════════════════════════════════════════════════
+        // 📸 Photo identité officielle
+        // ═══════════════════════════════════════════════════
+        [HttpPost("{id:guid}/identity-photo")]
+        [RequestSizeLimit(5_000_000)]
+        public async Task<IActionResult> UploadIdentityPhoto(
+            Guid id,
+            IFormFile file,
+            [FromServices] Data.AppDbContext context,
+            [FromServices] IFileStorageService storage)
+        {
+            var emp = await context.Employees.FindAsync(id);
+            if (emp == null) return NotFound();
+
+            if (!file.ContentType.StartsWith("image/"))
+                return BadRequest(new { message = "Image requise" });
+
+            var stored = await storage.SaveAsync(file, $"Employees/{id}/Identity");
+
+            // Supprimer l'ancienne si elle existe
+            if (!string.IsNullOrEmpty(emp.IdentityPhotoUrl))
+                await storage.DeleteAsync(emp.IdentityPhotoUrl);
+
+            emp.IdentityPhotoUrl = stored.RelativePath;
+            emp.UpdatedAt = DateTime.UtcNow;
+            await context.SaveChangesAsync();
+
+            return Ok(new { identityPhotoUrl = stored.RelativePath });
+        }
+
+        [HttpGet("{id:guid}/identity-photo")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetIdentityPhoto(
+            Guid id,
+            [FromServices] Data.AppDbContext context,
+            [FromServices] IFileStorageService storage)
+        {
+            var emp = await context.Employees.FindAsync(id);
+            if (emp == null || string.IsNullOrEmpty(emp.IdentityPhotoUrl))
+                return NotFound();
+
+            var bytes = await storage.ReadAsync(emp.IdentityPhotoUrl);
+            if (bytes == null) return NotFound();
+
+            var ext = Path.GetExtension(emp.IdentityPhotoUrl).ToLower();
+            var contentType = ext switch
+            {
+                ".png" => "image/png",
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".webp" => "image/webp",
+                _ => "application/octet-stream"
+            };
+
+            return File(bytes, contentType);
+        }
+
+        // ═══════════════════════════════════════════════════
+        // 🎫 Badge PDF
+        // ═══════════════════════════════════════════════════
+        [HttpGet("{id:guid}/badge")]
+        public async Task<IActionResult> DownloadBadge(
+            Guid id,
+            [FromServices] Data.AppDbContext context,
+            [FromServices] IBadgePdfService badgeService)
+        {
+            var emp = await context.Employees
+                .Include(e => e.Company)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+            if (emp == null) return NotFound();
+
+            var pdfBytes = badgeService.GenerateBadge(emp);
+            var fileName = $"Badge_{emp.EmployeeNumber ?? emp.Id.ToString()}.pdf";
+            return File(pdfBytes, "application/pdf", fileName);
         }
 
         [HttpDelete("{id:guid}")]

@@ -1,0 +1,159 @@
+<div class="space-y-4">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <h2 class="text-white font-semibold text-lg">📎 Documents personnels</h2>
+    <button
+      (click)="openForm()"
+      class="bg-bvad-secondary hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-semibold transition"
+    >
+      ➕ Ajouter
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading()" class="text-center text-slate-400 py-10">Chargement...</div>
+
+  <!-- Empty -->
+  <div
+    *ngIf="!loading() && documents().length === 0"
+    class="text-center text-slate-500 py-16 bg-slate-800/40 rounded-xl border border-dashed border-slate-700"
+  >
+    <div class="text-6xl mb-3">📎</div>
+    Aucun document.
+    <br />
+    <button (click)="openForm()" class="mt-4 text-bvad-secondary hover:underline">
+      ➕ Ajouter le premier document
+    </button>
+  </div>
+
+  <!-- Liste -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3" *ngIf="documents().length > 0">
+    <div
+      *ngFor="let doc of documents()"
+      class="bg-slate-800 border border-slate-700 rounded-xl p-4 flex items-start gap-3 hover:border-bvad-secondary/50 transition"
+    >
+      <div class="text-3xl flex-shrink-0">{{ icon(doc.type) }}</div>
+
+      <div class="flex-1 min-w-0">
+        <div class="text-white font-medium truncate">{{ doc.title }}</div>
+        <div class="text-slate-400 text-xs">{{ label(doc.type) }}</div>
+        <div class="text-slate-500 text-xs mt-1">
+          {{ doc.fileName }} · {{ formatSize(doc.fileSize) }}
+        </div>
+        <div class="flex gap-2 mt-2 flex-wrap">
+          <span
+            *ngIf="doc.isVerified"
+            class="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400"
+          >✅ Vérifié</span>
+          <span
+            *ngIf="doc.isExpired"
+            class="text-xs px-2 py-0.5 rounded-full bg-red-500/20 text-red-400"
+          >🚨 Expiré</span>
+          <span
+            *ngIf="doc.isExpiringSoon"
+            class="text-xs px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400"
+          >⚠ Expire bientôt</span>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <button
+          (click)="download(doc)"
+          class="text-blue-400 hover:bg-blue-500/20 rounded p-2 text-sm"
+          title="Télécharger"
+        >📥</button>
+        <button
+          (click)="delete(doc)"
+          class="text-red-400 hover:bg-red-500/20 rounded p-2 text-sm"
+          title="Supprimer"
+        >🗑</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal upload -->
+  <div
+    *ngIf="showForm()"
+    class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+  >
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-md p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-white font-bold text-lg">➕ Ajouter un document</h3>
+        <button (click)="closeForm()" class="text-slate-400 hover:text-white text-2xl">×</button>
+      </div>
+
+      <div>
+        <label class="text-sm text-slate-300">Type</label>
+        <select
+          [(ngModel)]="metadata.type" name="type"
+          class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white"
+        >
+          <option [ngValue]="1">📄 CV</option>
+          <option [ngValue]="2">🆔 CNI recto</option>
+          <option [ngValue]="3">🆔 CNI verso</option>
+          <option [ngValue]="4">📘 Passeport</option>
+          <option [ngValue]="5">🎓 Diplôme</option>
+          <option [ngValue]="6">📜 Certificat</option>
+          <option [ngValue]="7">🚗 Permis de conduire</option>
+          <option [ngValue]="8">🏥 Certificat médical</option>
+          <option [ngValue]="10">✉️ Recommandation</option>
+          <option [ngValue]="13">👶 Acte de naissance</option>
+          <option [ngValue]="0">📎 Autre</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="text-sm text-slate-300">Titre *</label>
+        <input
+          [(ngModel)]="metadata.title" name="title" required
+          placeholder="Ex: Diplôme Master Informatique"
+          class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white"
+        />
+      </div>
+
+      <div>
+        <label class="text-sm text-slate-300">Fichier *</label>
+        <input
+          type="file"
+          (change)="onFileSelected($event)"
+          class="w-full mt-1 text-white text-sm"
+        />
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-sm text-slate-300">Date délivrance</label>
+          <input
+            type="date" [(ngModel)]="metadata.issueDate" name="issueDate"
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white"
+          />
+        </div>
+        <div>
+          <label class="text-sm text-slate-300">Date expiration</label>
+          <input
+            type="date" [(ngModel)]="metadata.expiryDate" name="expiryDate"
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white"
+          />
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-4">
+        <button
+          (click)="closeForm()"
+          class="px-4 py-2 text-slate-300 hover:bg-slate-700 rounded-lg"
+        >
+          Annuler
+        </button>
+        <button
+          (click)="upload()"
+          [disabled]="uploading() || !selectedFile"
+          class="bg-bvad-secondary hover:bg-amber-600 disabled:opacity-50 text-white font-semibold px-6 py-2 rounded-lg"
+        >
+          {{ uploading() ? 'Envoi...' : 'Uploader' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

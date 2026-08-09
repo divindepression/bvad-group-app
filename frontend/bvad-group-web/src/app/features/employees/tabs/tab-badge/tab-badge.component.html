@@ -1,0 +1,84 @@
+<div class="max-w-2xl mx-auto">
+  <div
+    class="rounded-2xl overflow-hidden shadow-2xl border-2"
+    [style.borderColor]="employee.companyColor"
+  >
+    <!-- Header -->
+    <div class="p-4" [style.background]="employee.companyColor">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-white font-bold text-lg">{{ employee.companyName }}</div>
+          <div class="text-white/70 text-xs">Bâtir · Valoriser</div>
+        </div>
+        <div class="text-4xl">🏢</div>
+      </div>
+    </div>
+
+    <!-- Corps du badge -->
+    <div class="bg-white p-6 flex gap-6 items-center">
+     <!-- Photo -->
+<div class="w-24 h-32 bg-slate-200 rounded overflow-hidden flex items-center justify-center flex-shrink-0">
+  <img
+    *ngIf="hasIdentityPhoto"
+    [src]="photoUrl"
+    alt="Photo identité"
+    class="w-full h-full object-cover"
+  />
+  <span
+    *ngIf="!hasIdentityPhoto"
+    class="text-slate-600 font-bold text-3xl"
+  >
+    {{ employee.firstName.charAt(0) }}{{ employee.lastName.charAt(0) }}
+  </span>
+</div>
+
+      <!-- Infos -->
+      <div class="flex-1">
+        <div class="text-slate-800 font-bold text-xl">{{ employee.fullName }}</div>
+        <div class="mt-1 font-medium" [style.color]="employee.companyColor">
+          {{ employee.position }}
+        </div>
+        <div *ngIf="employee.department" class="text-slate-500 text-sm">
+          Dépt : {{ employee.department }}
+        </div>
+
+        <div class="mt-3 space-y-1 text-xs text-slate-600">
+          <div>
+            <span class="text-slate-400">Matricule :</span>
+            <span class="font-mono ml-1">{{ employee.employeeNumber || '—' }}</span>
+          </div>
+          <div>
+            <span class="text-slate-400">Depuis :</span>
+            <span class="ml-1">{{ employee.hireDate | date:'MM/yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- QR placeholder -->
+      <div class="w-20 h-20 bg-slate-100 rounded flex items-center justify-center flex-shrink-0">
+        <span class="text-3xl">📱</span>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-slate-100 p-3 text-center text-xs text-slate-600">
+      Cette carte est strictement personnelle
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="mt-6 flex justify-center gap-3">
+    <button
+      (click)="downloadBadge()"
+      [disabled]="loading()"
+      class="bg-bvad-secondary hover:bg-amber-600 disabled:opacity-50 text-white font-semibold px-6 py-3 rounded-lg transition flex items-center gap-2 shadow-lg"
+    >
+      <span *ngIf="!loading()">📥 Télécharger le badge PDF officiel</span>
+      <span *ngIf="loading()">Génération en cours...</span>
+    </button>
+  </div>
+
+  <p class="text-center text-slate-500 text-sm mt-4">
+    Le PDF téléchargé contient le QR code officiel pour la vérification.
+  </p>
+</div>

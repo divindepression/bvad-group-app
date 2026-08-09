@@ -127,7 +127,12 @@
 </div>
 
           <div class="flex-1 min-w-0">
-            <h3 class="text-white font-semibold truncate">{{ emp.fullName }}</h3>
+            <a
+  [routerLink]="['/employees', emp.id]"
+  class="text-white font-semibold truncate hover:text-bvad-secondary transition"
+>
+  {{ emp.fullName }}
+</a>
             <p class="text-slate-400 text-sm truncate">{{ emp.position }}</p>
             <p class="text-slate-500 text-xs mt-1 truncate">
               {{ emp.companyLogo }} {{ emp.companyName }}

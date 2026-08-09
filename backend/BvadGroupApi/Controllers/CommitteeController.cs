@@ -19,7 +19,6 @@ namespace BvadGroupApi.Controllers
             _context = context;
         }
 
-        /// <summary>Membres du comité d'une filiale</summary>
         [HttpGet("{companyId:guid}")]
         public async Task<IActionResult> GetCommittee(Guid companyId)
         {
@@ -32,16 +31,52 @@ namespace BvadGroupApi.Controllers
                 .ToListAsync();
 
             var dtos = members.Select(e => new EmployeeDto(
-                e.Id, e.FirstName, e.LastName, e.MiddleName, e.FullName,
-                e.Email, e.PhoneNumber, e.Position, e.Department,
-                e.Status.ToString(), e.ContractType.ToString(),
-                e.HireDate, e.EndDate, e.Salary, e.BirthDate, e.Age,
-                e.Gender.ToString(), e.City, e.Country, e.PhotoUrl,
-                e.CompanyId, e.Company?.Name ?? "", e.Company?.Color ?? "#1e3a8a",
-                e.Company?.Logo, e.CompanyRole.ToString(),
-                e.IsCommitteeMember, e.CommitteePosition.ToString(),
-                e.CommitteePositionCustom, e.ManagerId, e.Manager?.FullName,
-                e.UserId, e.CreatedAt
+                e.Id,
+                e.FirstName,
+                e.LastName,
+                e.MiddleName,
+                e.FullName,
+                e.Email,
+                e.PhoneNumber,
+                e.Position,
+                e.Department,
+                e.Status.ToString(),
+                e.ContractType.ToString(),
+                e.HireDate,
+                e.EndDate,
+                e.Salary,
+                e.BirthDate,
+                e.Age,
+                e.Gender.ToString(),
+                e.City,
+                e.Country,
+                e.PhotoUrl,
+                e.CompanyId,
+                e.Company?.Name ?? "",
+                e.Company?.Color ?? "#1e3a8a",
+                e.Company?.Logo,
+                e.CompanyRole.ToString(),
+                e.IsCommitteeMember,
+                e.CommitteePosition.ToString(),
+                e.CommitteePositionCustom,
+                e.ManagerId,
+                e.Manager?.FullName,
+                e.UserId,
+                e.CreatedAt,
+
+                // 🆕 NOUVEAUX CHAMPS
+                e.EmployeeNumber,
+                e.IdentityPhotoUrl,
+                e.SignatureUrl,
+                e.BankName,
+                e.BankAccountNumber,
+                e.MobileMoneyOperator,
+                e.MobileMoneyNumber,
+                e.EmergencyContactName,
+                e.EmergencyContactPhone,
+                e.EmergencyContactRelation,
+                e.NationalIdNumber,
+                e.SocialSecurityNumber
             )).ToList();
 
             return Ok(dtos);

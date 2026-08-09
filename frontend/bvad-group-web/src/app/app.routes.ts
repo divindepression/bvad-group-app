@@ -39,6 +39,12 @@ export const routes: Routes = [
           ),
       },
       {
+  path: 'employees/:id',
+  loadComponent: () =>
+    import('./features/employees/employee-detail/employee-detail.component')
+      .then(m => m.EmployeeDetailComponent)
+},
+      {
         path: 'committee',
         loadComponent: () =>
           import('./features/committee/committee/committee.component').then(

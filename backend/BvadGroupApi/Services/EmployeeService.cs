@@ -107,6 +107,9 @@ namespace BvadGroupApi.Services
                 ManagerId = dto.ManagerId
             };
 
+            // 🆔 Générer matricule automatiquement
+            emp.EmployeeNumber = await GenerateEmployeeNumberAsync(company);
+
             _context.Employees.Add(emp);
             await _context.SaveChangesAsync();
 
@@ -181,6 +184,19 @@ namespace BvadGroupApi.Services
             return true;
         }
 
+        private async Task<string> GenerateEmployeeNumberAsync(Company company)
+        {
+            var year = DateTime.UtcNow.Year;
+            var prefix = $"{company.Code}-{year}-";
+
+            var count = await _context.Employees
+                .CountAsync(e => e.CompanyId == company.Id
+                             && e.EmployeeNumber != null
+                             && e.EmployeeNumber.StartsWith(prefix));
+
+            return $"{prefix}{(count + 1):D3}";
+        }
+
         // ==============================
         private static EmployeeDto ToDto(Employee e) =>
             new(
@@ -215,7 +231,22 @@ namespace BvadGroupApi.Services
                 e.ManagerId,
                 e.Manager?.FullName,
                 e.UserId,
-                e.CreatedAt
+                e.CreatedAt,
+
+        // 🆕 NOUVEAUX
+        e.EmployeeNumber,
+        e.IdentityPhotoUrl,
+        e.SignatureUrl,
+        e.BankName,
+        e.BankAccountNumber,
+        e.MobileMoneyOperator,
+        e.MobileMoneyNumber,
+        e.EmergencyContactName,
+        e.EmergencyContactPhone,
+        e.EmergencyContactRelation,
+        e.NationalIdNumber,
+        e.SocialSecurityNumber
+
             );
     }
 }

@@ -31,15 +31,19 @@ export class EmployeeService {
     return this.http.get<Employee[]>(this.apiUrl, { params });
   }
 
-  getById(id: string): Observable<Employee> {
-    return this.http.get<Employee>(`${this.apiUrl}/${id}`);
-  }
+getById(id: string): Observable<Employee> {
+  return this.http.get<Employee>(`${this.apiUrl}/${id}`);
+}
 
   create(data: CreateEmployeeRequest): Observable<Employee> {
     return this.http.post<Employee>(this.apiUrl, data);
   }
 
-  update(id: string, data: CreateEmployeeRequest): Observable<Employee> {
+updateById(id: string, data: Partial<Employee>): Observable<Employee> {
+  return this.http.put<Employee>(`${this.apiUrl}/${id}`, data);
+}
+
+update(id: string, data: CreateEmployeeRequest): Observable<Employee> {
     return this.http.put<Employee>(`${this.apiUrl}/${id}`, data);
   }
 

@@ -1,0 +1,111 @@
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+  <!-- Contact -->
+  <div class="bg-slate-800/60 rounded-xl border border-slate-700 p-5">
+    <h2 class="text-white font-semibold mb-4 flex items-center gap-2">📞 Contact</h2>
+    <div class="space-y-2 text-sm">
+      <div class="flex gap-3">
+        <span class="text-slate-500 w-32 flex-shrink-0">Email pro</span>
+        <span class="text-slate-200 break-all">{{ employee.email }}</span>
+      </div>
+      <div class="flex gap-3" *ngIf="employee.phoneNumber">
+        <span class="text-slate-500 w-32 flex-shrink-0">Téléphone</span>
+        <span class="text-slate-200">{{ employee.phoneNumber }}</span>
+      </div>
+      <div class="flex gap-3" *ngIf="employee.city">
+        <span class="text-slate-500 w-32 flex-shrink-0">Ville</span>
+        <span class="text-slate-200">{{ employee.city }}, {{ employee.country }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Emploi -->
+  <div class="bg-slate-800/60 rounded-xl border border-slate-700 p-5">
+    <h2 class="text-white font-semibold mb-4 flex items-center gap-2">💼 Emploi</h2>
+    <div class="space-y-2 text-sm">
+      <div class="flex gap-3">
+        <span class="text-slate-500 w-32 flex-shrink-0">Contrat</span>
+        <span class="text-slate-200">{{ employee.contractType }}</span>
+      </div>
+      <div class="flex gap-3">
+        <span class="text-slate-500 w-32 flex-shrink-0">Embauche</span>
+        <span class="text-slate-200">{{ employee.hireDate | date:'dd/MM/yyyy' }}</span>
+      </div>
+      <div class="flex gap-3" *ngIf="employee.salary">
+        <span class="text-slate-500 w-32 flex-shrink-0">Salaire</span>
+        <span class="text-green-400 font-medium">{{ formatSalary(employee.salary) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Identité -->
+  <div class="bg-slate-800/60 rounded-xl border border-slate-700 p-5">
+    <h2 class="text-white font-semibold mb-4 flex items-center gap-2">🆔 Identité</h2>
+    <div class="space-y-2 text-sm">
+      <div class="flex gap-3" *ngIf="employee.birthDate">
+        <span class="text-slate-500 w-32 flex-shrink-0">Né(e) le</span>
+        <span class="text-slate-200">
+          {{ employee.birthDate | date:'dd/MM/yyyy' }}
+          <span *ngIf="employee.age" class="text-slate-500">({{ employee.age }} ans)</span>
+        </span>
+      </div>
+      <div class="flex gap-3" *ngIf="employee.nationalIdNumber">
+        <span class="text-slate-500 w-32 flex-shrink-0">N° CNI</span>
+        <span class="text-slate-200 font-mono">{{ employee.nationalIdNumber }}</span>
+      </div>
+      <div class="flex gap-3" *ngIf="employee.socialSecurityNumber">
+        <span class="text-slate-500 w-32 flex-shrink-0">N° CNPS</span>
+        <span class="text-slate-200 font-mono">{{ employee.socialSecurityNumber }}</span>
+      </div>
+    </div>
+    <div *ngIf="!employee.nationalIdNumber && !employee.socialSecurityNumber" class="text-slate-500 text-sm italic">
+      Aucune information d'identité renseignée.
+    </div>
+  </div>
+
+  <!-- Contact d'urgence -->
+  <div class="bg-red-500/5 rounded-xl border border-red-500/30 p-5">
+    <h2 class="text-red-400 font-semibold mb-4 flex items-center gap-2">🚨 Contact d'urgence</h2>
+    <div class="space-y-2 text-sm" *ngIf="employee.emergencyContactName; else noEmergency">
+      <div class="flex gap-3">
+        <span class="text-slate-500 w-32 flex-shrink-0">Nom</span>
+        <span class="text-slate-200">{{ employee.emergencyContactName }}</span>
+      </div>
+      <div class="flex gap-3" *ngIf="employee.emergencyContactRelation">
+        <span class="text-slate-500 w-32 flex-shrink-0">Lien</span>
+        <span class="text-slate-200">{{ employee.emergencyContactRelation }}</span>
+      </div>
+      <div class="flex gap-3" *ngIf="employee.emergencyContactPhone">
+        <span class="text-slate-500 w-32 flex-shrink-0">Téléphone</span>
+        <span class="text-slate-200">{{ employee.emergencyContactPhone }}</span>
+      </div>
+    </div>
+    <ng-template #noEmergency>
+      <div class="text-slate-500 text-sm italic">Aucun contact d'urgence renseigné.</div>
+    </ng-template>
+  </div>
+
+  <!-- Bancaire -->
+  <div class="bg-slate-800/60 rounded-xl border border-slate-700 p-5 md:col-span-2">
+    <h2 class="text-white font-semibold mb-4 flex items-center gap-2">🏦 Coordonnées bancaires</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm" *ngIf="employee.bankName || employee.mobileMoneyNumber; else noBank">
+      <div *ngIf="employee.bankName" class="space-y-2">
+        <div class="text-slate-400 uppercase text-xs">Banque</div>
+        <div class="text-slate-200">{{ employee.bankName }}</div>
+        <div *ngIf="employee.bankAccountNumber" class="text-slate-200 font-mono text-xs">
+          {{ employee.bankAccountNumber }}
+        </div>
+      </div>
+      <div *ngIf="employee.mobileMoneyNumber" class="space-y-2">
+        <div class="text-slate-400 uppercase text-xs">📱 Mobile Money</div>
+        <div class="text-slate-200">
+          {{ employee.mobileMoneyOperator }} — {{ employee.mobileMoneyNumber }}
+        </div>
+      </div>
+    </div>
+    <ng-template #noBank>
+      <div class="text-slate-500 text-sm italic">Aucune coordonnée bancaire renseignée.</div>
+    </ng-template>
+  </div>
+
+</div>

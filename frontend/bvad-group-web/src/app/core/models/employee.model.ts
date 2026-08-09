@@ -47,6 +47,21 @@ export interface Employee {
   managerName?: string;
   userId?: string;
   createdAt: string;
+
+  // 🆕 NOUVEAUX CHAMPS
+  employeeNumber?: string;
+  identityPhotoUrl?: string;
+  signatureUrl?: string;
+  bankName?: string;
+  bankAccountNumber?: string;
+  mobileMoneyOperator?: string;
+  mobileMoneyNumber?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  emergencyContactRelation?: string;
+  nationalIdNumber?: string;
+  socialSecurityNumber?: string;
+
 }
 
 // Enums numériques (envoi au backend)

@@ -1,0 +1,110 @@
+<div class="max-w-6xl mx-auto space-y-6" *ngIf="employee() as emp">
+
+  <!-- Retour -->
+  <a
+    routerLink="/employees"
+    class="text-slate-400 hover:text-white text-sm inline-flex items-center gap-2"
+  >
+    ← Retour à la liste
+  </a>
+
+  <!-- Hero -->
+  <div
+    class="rounded-2xl overflow-hidden border shadow-2xl"
+    [style.borderColor]="emp.companyColor + '50'"
+    [style.background]="'linear-gradient(135deg, ' + emp.companyColor + '30, transparent)'"
+  >
+    <div class="p-6 sm:p-8">
+      <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+        <!-- Avatar -->
+        <div
+          class="w-24 h-24 sm:w-32 sm:h-32 rounded-full flex items-center justify-center text-white text-3xl sm:text-4xl font-bold shadow-2xl flex-shrink-0 overflow-hidden"
+          [style.background]="emp.companyColor"
+        >
+          <img
+            *ngIf="emp.photoUrl && emp.photoUrl.startsWith('http')"
+            [src]="emp.photoUrl"
+            alt=""
+            class="w-full h-full object-cover"
+          />
+          <span *ngIf="!emp.photoUrl || !emp.photoUrl.startsWith('http')">
+            {{ initials(emp) }}
+          </span>
+        </div>
+
+        <!-- Infos -->
+        <div class="flex-1 text-center sm:text-left">
+          <div class="text-xs text-slate-400 mb-1" *ngIf="emp.employeeNumber">
+            Matricule : <span class="text-slate-200 font-mono">{{ emp.employeeNumber }}</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-bold text-white">{{ emp.fullName }}</h1>
+          <p class="text-lg text-slate-300 mt-1">{{ emp.position }}</p>
+          <div class="flex flex-wrap gap-2 mt-3 justify-center sm:justify-start">
+            <span
+              class="px-3 py-1 rounded-full text-sm font-medium text-white"
+              [style.background]="emp.companyColor"
+            >
+              {{ emp.companyLogo }} {{ emp.companyName }}
+            </span>
+            <span *ngIf="emp.department" class="px-3 py-1 rounded-full text-sm bg-slate-700 text-slate-200">
+              🏛 {{ emp.department }}
+            </span>
+            <span
+              *ngIf="emp.isCommitteeMember"
+              class="px-3 py-1 rounded-full text-sm bg-bvad-secondary/20 text-bvad-secondary border border-bvad-secondary/40"
+            >
+              🏛 Comité
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglets -->
+  <div class="border-b border-slate-700 flex gap-1 sm:gap-4 overflow-x-auto">
+    <button
+      *ngFor="let tab of tabs"
+      (click)="setTab(tab.id)"
+      class="px-4 py-3 border-b-2 whitespace-nowrap transition"
+      [class.border-bvad-secondary]="activeTab() === tab.id"
+      [class.text-bvad-secondary]="activeTab() === tab.id"
+      [class.border-transparent]="activeTab() !== tab.id"
+      [class.text-slate-400]="activeTab() !== tab.id"
+      [class.hover:text-white]="activeTab() !== tab.id"
+    >
+      <span class="mr-2">{{ tab.icon }}</span>
+      <span class="hidden sm:inline">{{ tab.label }}</span>
+    </button>
+  </div>
+
+  <!-- Contenu onglet -->
+  <div>
+    <app-tab-info
+      *ngIf="activeTab() === 'info'"
+      [attr.data-employee]="emp | json"
+      (reload)="reload()" [employee]="emp"
+    ></app-tab-info>
+
+    <app-tab-documents
+      *ngIf="activeTab() === 'documents'"
+      [attr.data-employee]="emp | json" [employee]="emp"
+    ></app-tab-documents>
+
+    <app-tab-badge
+      *ngIf="activeTab() === 'badge'"
+      [attr.data-employee]="emp | json" [employee]="emp"
+    ></app-tab-badge>
+
+    <app-tab-identity-photo
+      *ngIf="activeTab() === 'photo'"
+      [attr.data-employee]="emp | json"
+      (reload)="reload()" [employee]="emp"
+    ></app-tab-identity-photo>
+  </div>
+
+</div>
+
+<div *ngIf="loading()" class="text-center text-slate-400 py-16">
+  Chargement...
+</div>

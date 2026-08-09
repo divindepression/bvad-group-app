@@ -5,11 +5,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { Employee, EmployeeStatus } from '../../../core/models/employee.model';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { EmployeeFormComponent } from '../employee-form/employee-form.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-employee-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, EmployeeFormComponent],
+  imports: [CommonModule, FormsModule, EmployeeFormComponent, RouterLink],
   templateUrl: './employee-list.component.html'
 })
 export class EmployeeListComponent implements OnInit {

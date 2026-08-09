@@ -353,6 +353,32 @@ namespace BvadGroupApi.Services
             await _context.SaveChangesAsync();
             _logger.LogInformation("✅ Liens hiérarchiques créés");
 
+            // 🆔 GÉNÉRER LES MATRICULES
+            _logger.LogInformation("🆔 Génération des matricules...");
+
+            var year = DateTime.UtcNow.Year;
+            int techCount = 0, agroCount = 0, schoolCount = 0, conseilCount = 0;
+
+            foreach (var emp in employees.OrderBy(e => e.HireDate))
+            {
+                var company = await _context.Companies.FindAsync(emp.CompanyId);
+                if (company == null) continue;
+
+                int number = company.Code switch
+                {
+                    "BVAD_TECH" => ++techCount,
+                    "BVAD_AGRO" => ++agroCount,
+                    "BVAD_SCHOOL" => ++schoolCount,
+                    "BVAD_CONSEIL" => ++conseilCount,
+                    _ => 1
+                };
+
+                emp.EmployeeNumber = $"{company.Code}-{year}-{number:D3}";
+            }
+
+            await _context.SaveChangesAsync();
+            _logger.LogInformation("✅ Matricules générés (ex: BVAD_TECH-2025-001)");
+
             // 🎯 Auto-création des comptes User pour chaque employé
             _logger.LogInformation("👤 Auto-création des comptes User...");
             foreach (var emp in employees)
