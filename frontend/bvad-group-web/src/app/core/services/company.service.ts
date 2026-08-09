@@ -48,9 +48,12 @@ export class CompanyService {
   // ═══════════════════════════════════════
   // 📥 URLs
   // ═══════════════════════════════════════
-  logoUrl(id: string): string {
-    return this.cachedUrl(`${id}-logo`, `${this.baseUrl}/${id}/logo`);
+logoUrl(id: string): string {
+  if (!this.assetCache.has(`${id}-logo`)) {
+    this.assetCache.set(`${id}-logo`, `${this.baseUrl}/${id}/logo?t=${Date.now()}`);
   }
+  return this.assetCache.get(`${id}-logo`)!;
+}
 
   stampUrl(id: string): string {
     return this.cachedUrl(`${id}-stamp`, `${this.baseUrl}/${id}/stamp`);
@@ -66,6 +69,14 @@ export class CompanyService {
     }
     return this.assetCache.get(key)!;
   }
+
+  create(data: any): Observable<Company> {
+  return this.http.post<Company>(this.baseUrl, data);
+}
+
+delete(id: string): Observable<void> {
+  return this.http.delete<void>(`${this.baseUrl}/${id}`);
+}
 
   refreshCache(id: string): void {
     this.assetCache.delete(`${id}-logo`);

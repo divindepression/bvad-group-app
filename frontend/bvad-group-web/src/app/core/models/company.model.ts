@@ -42,3 +42,26 @@ export interface UpdateCompanyRequest {
   directorName?: string;
   directorTitle?: string;
 }
+
+
+export interface CreateCompanyRequest {
+  code: string;
+  name: string;
+  legalName?: string;
+  description?: string;
+  slogan?: string;
+  color: string;
+  logo?: string;
+  isHolding: boolean;
+  displayOrder: number;
+  address?: string;
+  city?: string;
+  country?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  registrationNumber?: string;
+  taxNumber?: string;
+  directorName?: string;
+  directorTitle?: string;
+}

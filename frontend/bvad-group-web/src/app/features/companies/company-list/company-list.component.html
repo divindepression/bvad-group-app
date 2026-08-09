@@ -1,12 +1,23 @@
 <div class="max-w-6xl mx-auto space-y-6">
 
-  <div>
-    <h1 class="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
-      🏢 Filiales du groupe
-    </h1>
-    <p class="text-slate-400 text-sm mt-1">
-      Gérez la charte graphique et les informations légales de chaque entité.
-    </p>
+  <!-- Header + bouton -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
+        🏢 Filiales du groupe
+      </h1>
+      <p class="text-slate-400 text-sm mt-1">
+        Gérez la charte graphique et les informations légales de chaque entité.
+      </p>
+    </div>
+
+    <button
+      *ngIf="canCreate()"
+      (click)="openCreateForm()"
+      class="bg-bvad-secondary hover:bg-amber-600 text-white font-semibold px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-lg"
+    >
+      ➕ Nouvelle filiale
+    </button>
   </div>
 
   <div *ngIf="loading()" class="text-center text-slate-400 py-10">Chargement...</div>
@@ -17,26 +28,16 @@
       [routerLink]="['/companies', c.id]"
       class="block bg-slate-800 border border-slate-700 rounded-xl overflow-hidden hover:border-bvad-secondary/50 transition transform hover:scale-[1.02]"
     >
-      <!-- Header avec couleur -->
       <div class="h-3" [style.background]="c.color"></div>
 
       <div class="p-5 flex items-start gap-4">
-        <!-- Logo -->
         <div
           class="w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden"
           [style.background]="c.color + '30'"
           [style.border]="'1px solid ' + c.color"
         >
-          <img
-            *ngIf="c.logoUrl"
-            [src]="logoUrl(c)"
-            class="w-full h-full object-contain"
-            alt=""
-          />
-          <span
-            *ngIf="!c.logoUrl"
-            class="text-3xl"
-          >{{ c.logo }}</span>
+          <img *ngIf="c.logoUrl" [src]="logoUrl(c)" class="w-full h-full object-contain" alt="" />
+          <span *ngIf="!c.logoUrl" class="text-3xl">{{ c.logo }}</span>
         </div>
 
         <div class="flex-1 min-w-0">
@@ -51,18 +52,9 @@
           <p *ngIf="c.slogan" class="text-xs text-slate-500 italic mt-1">« {{ c.slogan }} »</p>
 
           <div class="flex gap-2 flex-wrap mt-3">
-            <span
-              *ngIf="c.logoUrl"
-              class="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400"
-            >✓ Logo</span>
-            <span
-              *ngIf="c.stampUrl"
-              class="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400"
-            >✓ Cachet</span>
-            <span
-              *ngIf="c.directorSignatureUrl"
-              class="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400"
-            >✓ Signature</span>
+            <span *ngIf="c.logoUrl" class="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400">✓ Logo</span>
+            <span *ngIf="c.stampUrl" class="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400">✓ Cachet</span>
+            <span *ngIf="c.directorSignatureUrl" class="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400">✓ Signature</span>
             <span
               *ngIf="!c.logoUrl || !c.stampUrl || !c.directorSignatureUrl"
               class="text-xs px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400"
@@ -74,3 +66,9 @@
   </div>
 
 </div>
+
+<!-- Modal création -->
+<app-company-create
+  *ngIf="showCreateForm()"
+  (closed)="onFormClosed($event)"
+></app-company-create>

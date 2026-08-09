@@ -169,6 +169,118 @@ namespace BvadGroupApi.Controllers
         }
 
         // ═══════════════════════════════════════
+        // ➕ CRÉATION
+        // ═══════════════════════════════════════
+        [HttpPost]
+        [Authorize(Roles = "SuperAdmin,Admin")]
+        public async Task<IActionResult> Create([FromBody] CreateCompanyDto dto)
+        {
+            // Validation code
+            if (string.IsNullOrWhiteSpace(dto.Code))
+                return BadRequest(new { message = "Le code est obligatoire" });
+
+            var normalizedCode = dto.Code.Trim().ToUpperInvariant().Replace(" ", "_");
+
+            // Code unique ?
+            if (await _context.Companies.AnyAsync(c => c.Code == normalizedCode))
+                return BadRequest(new { message = $"Le code '{normalizedCode}' existe déjà" });
+
+            // Une seule holding possible ?
+            if (dto.IsHolding && await _context.Companies.AnyAsync(c => c.IsHolding))
+                return BadRequest(new { message = "Une holding existe déjà (une seule autorisée)" });
+
+            var company = new Models.Company
+            {
+                Code = normalizedCode,
+                Name = dto.Name,
+                LegalName = dto.LegalName,
+                Description = dto.Description,
+                Slogan = dto.Slogan,
+                Color = dto.Color,
+                Logo = dto.Logo ?? "🏢",
+                IsHolding = dto.IsHolding,
+                DisplayOrder = dto.DisplayOrder,
+                Address = dto.Address,
+                City = dto.City,
+                Country = dto.Country ?? "Cameroun",
+                Phone = dto.Phone,
+                Email = dto.Email,
+                Website = dto.Website,
+                RegistrationNumber = dto.RegistrationNumber,
+                TaxNumber = dto.TaxNumber,
+                DirectorName = dto.DirectorName,
+                DirectorTitle = dto.DirectorTitle,
+                IsActive = true
+            };
+
+            _context.Companies.Add(company);
+            await _context.SaveChangesAsync();
+
+            // 🔗 Donner accès automatiquement à tous les SuperAdmins
+            var superAdmins = await _context.Users
+                .Where(u => u.Role == Models.UserRole.SuperAdmin)
+                .ToListAsync();
+
+            foreach (var admin in superAdmins)
+            {
+                _context.UserCompanies.Add(new Models.UserCompany
+                {
+                    UserId = admin.Id,
+                    CompanyId = company.Id,
+                    CompanyRole = Models.UserRole.SuperAdmin,
+                    IsDefault = false
+                });
+            }
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetById), new { id = company.Id }, ToDto(company));
+        }
+
+        // ═══════════════════════════════════════
+        // 🗑 SUPPRESSION
+        // ═══════════════════════════════════════
+        [HttpDelete("{id:guid}")]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var company = await _context.Companies.FindAsync(id);
+            if (company == null) return NotFound();
+
+            // Protection holding
+            if (company.IsHolding)
+                return BadRequest(new { message = "Impossible de supprimer la holding" });
+
+            // Protection employés
+            var employeeCount = await _context.Employees.CountAsync(e => e.CompanyId == id);
+            if (employeeCount > 0)
+                return BadRequest(new { message = $"Impossible : {employeeCount} employé(s) rattaché(s) à cette filiale" });
+
+            // Protection contrats
+            var contractCount = await _context.Contracts.CountAsync(c => c.CompanyId == id);
+            if (contractCount > 0)
+                return BadRequest(new { message = $"Impossible : {contractCount} contrat(s) rattaché(s) à cette filiale" });
+
+            // Supprimer les assets uploadés
+            if (!string.IsNullOrEmpty(company.LogoUrl))
+                await _storage.DeleteAsync(company.LogoUrl);
+            if (!string.IsNullOrEmpty(company.StampUrl))
+                await _storage.DeleteAsync(company.StampUrl);
+            if (!string.IsNullOrEmpty(company.DirectorSignatureUrl))
+                await _storage.DeleteAsync(company.DirectorSignatureUrl);
+
+            // Supprimer les UserCompanies liés (cascade)
+            var userCompanies = await _context.UserCompanies
+                .Where(uc => uc.CompanyId == id)
+                .ToListAsync();
+            _context.UserCompanies.RemoveRange(userCompanies);
+
+            _context.Companies.Remove(company);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // ═══════════════════════════════════════
         // Helper
         // ═══════════════════════════════════════
         private static CompanyDto ToDto(Models.Company c) =>

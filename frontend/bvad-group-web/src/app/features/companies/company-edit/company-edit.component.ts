@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CompanyService } from '../../../core/services/company.service';
 import { Company, UpdateCompanyRequest } from '../../../core/models/company.model';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-company-edit',
@@ -15,11 +16,13 @@ export class CompanyEditComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private service = inject(CompanyService);
+  auth = inject(AuthService);
 
   company = signal<Company | null>(null);
   loading = signal(false);
   saving = signal(false);
   message = signal('');
+  deleting = signal(false);
 
   form: UpdateCompanyRequest = this.emptyForm();
 
@@ -146,4 +149,31 @@ export class CompanyEditComponent implements OnInit {
   private emptyForm(): UpdateCompanyRequest {
     return { name: '', color: '#1e3a8a' };
   }
+
+  canDelete(): boolean {
+  const role = this.auth?.currentUser()?.role;
+  return role === 'SuperAdmin' && !this.company()?.isHolding;
+}
+
+deleteCompany(): void {
+  const c = this.company();
+  if (!c) return;
+
+  if (!confirm(`⚠ Supprimer définitivement la filiale "${c.name}" ?\n\nCette action est irréversible. Elle ne fonctionnera que si aucun employé ni contrat n'y est rattaché.`)) {
+    return;
+  }
+
+  this.deleting.set(true);
+  this.service.delete(c.id).subscribe({
+    next: () => {
+      this.deleting.set(false);
+      this.router.navigate(['/companies']);
+    },
+    error: (err) => {
+      this.deleting.set(false);
+      alert('❌ ' + (err.error?.message || 'Erreur suppression'));
+    }
+  });
+}
+
 }

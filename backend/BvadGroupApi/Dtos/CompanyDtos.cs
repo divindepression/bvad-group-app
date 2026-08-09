@@ -44,4 +44,32 @@
         string? DirectorName,
         string? DirectorTitle
     );
+
+    public record CreateCompanyDto(
+    string Code,
+    string Name,
+    string? LegalName,
+    string? Description,
+    string? Slogan,
+    string Color,
+    string? Logo,                // emoji fallback
+    bool IsHolding,
+    int DisplayOrder,
+
+    // Contact
+    string? Address,
+    string? City,
+    string? Country,
+    string? Phone,
+    string? Email,
+    string? Website,
+
+    // Légal
+    string? RegistrationNumber,
+    string? TaxNumber,
+
+    // Direction
+    string? DirectorName,
+    string? DirectorTitle
+);
 }
