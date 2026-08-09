@@ -72,7 +72,7 @@ Password : Bvad2025!
 - [x] Multi-filiales
 - [x] Design responsive
 - [x] Docker
-- [ ] Gestion employés
+- [x] Gestion employés
 - [ ] Contrats
 - [ ] Congés
 - [ ] Présences
