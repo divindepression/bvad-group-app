@@ -39,11 +39,26 @@ export const routes: Routes = [
           ),
       },
       {
-  path: 'employees/:id',
-  loadComponent: () =>
-    import('./features/employees/employee-detail/employee-detail.component')
-      .then(m => m.EmployeeDetailComponent)
-},
+        path: 'employees/:id',
+        loadComponent: () =>
+          import('./features/employees/employee-detail/employee-detail.component').then(
+            (m) => m.EmployeeDetailComponent,
+          ),
+      },
+      {
+        path: 'companies',
+        loadComponent: () =>
+          import('./features/companies/company-list/company-list.component').then(
+            (m) => m.CompanyListComponent,
+          ),
+      },
+      {
+        path: 'companies/:id',
+        loadComponent: () =>
+          import('./features/companies/company-edit/company-edit.component').then(
+            (m) => m.CompanyEditComponent,
+          ),
+      },
       {
         path: 'committee',
         loadComponent: () =>

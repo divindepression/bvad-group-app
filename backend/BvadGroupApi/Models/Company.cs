@@ -7,34 +7,44 @@
     {
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        /// <summary>Code unique (ex: BVAD_GROUP, BVAD_AGRO)</summary>
+        // Identité
         public string Code { get; set; } = string.Empty;
-
-        /// <summary>Nom complet (ex: "BVAD Agro")</summary>
         public string Name { get; set; } = string.Empty;
-
-        /// <summary>Description courte</summary>
         public string? Description { get; set; }
+        public string? Slogan { get; set; }              // 🆕 Ex: "Bâtir · Valoriser"
 
-        /// <summary>Couleur d'identité (hex ex: #16a34a)</summary>
+        // Design
         public string Color { get; set; } = "#1e3a8a";
+        public string? Logo { get; set; }                // Emoji (fallback)
+        public string? LogoUrl { get; set; }             // 🆕 URL vers image logo officiel
+        public string? StampUrl { get; set; }            // 🆕 Cachet officiel (PNG transparent)
+        public string? DirectorSignatureUrl { get; set; }// 🆕 Signature du directeur
 
-        /// <summary>Emoji ou URL du logo</summary>
-        public string? Logo { get; set; }
+        // Contact / Légal
+        public string? LegalName { get; set; }           // 🆕 Raison sociale complète
+        public string? RegistrationNumber { get; set; }  // 🆕 RCCM / SIRET
+        public string? TaxNumber { get; set; }           // 🆕 NIU / TVA
+        public string? Address { get; set; }             // 🆕 Adresse siège
+        public string? City { get; set; }
+        public string? Country { get; set; } = "Cameroun";
+        public string? Phone { get; set; }
+        public string? Email { get; set; }
+        public string? Website { get; set; }
 
-        /// <summary>True si c'est la holding (BVAD GROUP mère)</summary>
+        // Direction
+        public string? DirectorName { get; set; }        // 🆕 Nom du dirigeant (pour signatures)
+        public string? DirectorTitle { get; set; }       // 🆕 Titre (PDG, Directeur Général...)
+
+        // État
         public bool IsHolding { get; set; } = false;
-
-        /// <summary>Ordre d'affichage</summary>
         public int DisplayOrder { get; set; }
-
-        /// <summary>Active / désactivée</summary>
         public bool IsActive { get; set; } = true;
 
+        // Audit
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        // Navigation : liste des utilisateurs qui ont accès à cette filiale
+        // Navigation
         public ICollection<UserCompany> UserCompanies { get; set; } = new List<UserCompany>();
     }
 }

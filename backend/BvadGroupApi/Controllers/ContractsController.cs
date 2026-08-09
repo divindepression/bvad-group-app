@@ -83,9 +83,8 @@ namespace BvadGroupApi.Controllers
             var contract = await _service.GetContractEntityAsync(id);
             if (contract == null) return NotFound();
 
-            var pdfBytes = _pdfService.GenerateContractPdf(contract);
+            var pdfBytes = await _pdfService.GenerateContractPdfAsync(contract);
             var fileName = $"Contrat_{contract.ContractNumber}.pdf";
-
             return File(pdfBytes, "application/pdf", fileName);
         }
 

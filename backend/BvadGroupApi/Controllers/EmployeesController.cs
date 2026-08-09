@@ -136,5 +136,80 @@ namespace BvadGroupApi.Controllers
             var ok = await _service.DeleteAsync(id);
             return ok ? NoContent() : NotFound();
         }
+
+        // ═══════════════════════════════════════════════════
+        // 🖋 Signature scannée employé
+        // ═══════════════════════════════════════════════════
+        [HttpPost("{id:guid}/signature")]
+        [RequestSizeLimit(5_000_000)]
+        public async Task<IActionResult> UploadSignature(
+            Guid id,
+            IFormFile file,
+            [FromServices] Data.AppDbContext context,
+            [FromServices] IFileStorageService storage)
+        {
+            var emp = await context.Employees.FindAsync(id);
+            if (emp == null) return NotFound();
+
+            if (!file.ContentType.StartsWith("image/"))
+                return BadRequest(new { message = "Image requise (PNG transparent recommandé)" });
+
+            var stored = await storage.SaveAsync(file, $"Employees/{id}/Signature");
+
+            if (!string.IsNullOrEmpty(emp.SignatureUrl))
+                await storage.DeleteAsync(emp.SignatureUrl);
+
+            emp.SignatureUrl = stored.RelativePath;
+            emp.UpdatedAt = DateTime.UtcNow;
+            await context.SaveChangesAsync();
+
+            return Ok(new { signatureUrl = stored.RelativePath });
+        }
+
+        [HttpGet("{id:guid}/signature")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetSignature(
+            Guid id,
+            [FromServices] Data.AppDbContext context,
+            [FromServices] IFileStorageService storage)
+        {
+            var emp = await context.Employees.FindAsync(id);
+            if (emp == null || string.IsNullOrEmpty(emp.SignatureUrl))
+                return NotFound();
+
+            var bytes = await storage.ReadAsync(emp.SignatureUrl);
+            if (bytes == null) return NotFound();
+
+            var ext = Path.GetExtension(emp.SignatureUrl).ToLower();
+            var contentType = ext switch
+            {
+                ".png" => "image/png",
+                ".jpg" or ".jpeg" => "image/jpeg",
+                _ => "application/octet-stream"
+            };
+
+            return File(bytes, contentType);
+        }
+
+        // ═══════════════════════════════════════════════════
+        // 📄 Fiche employé PDF officielle
+        // ═══════════════════════════════════════════════════
+        [HttpGet("{id:guid}/sheet-pdf")]
+        public async Task<IActionResult> DownloadSheetPdf(
+            Guid id,
+            [FromServices] Data.AppDbContext context,
+            [FromServices] IEmployeeSheetPdfService sheetService)
+        {
+            var emp = await context.Employees
+                .Include(e => e.Company)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+            if (emp == null) return NotFound();
+
+            var pdfBytes = sheetService.GenerateSheet(emp);
+            var fileName = $"Fiche_{emp.EmployeeNumber ?? emp.Id.ToString()}.pdf";
+            return File(pdfBytes, "application/pdf", fileName);
+        }
+
     }
 }

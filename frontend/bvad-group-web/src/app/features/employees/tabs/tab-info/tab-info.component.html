@@ -1,3 +1,15 @@
+<!-- Bouton fiche PDF officielle -->
+<div class="mb-4 flex justify-end">
+  <button
+    (click)="downloadSheet()"
+    [disabled]="downloadingSheet()"
+    class="bg-bvad-secondary hover:bg-amber-600 disabled:opacity-50 text-white font-semibold px-6 py-3 rounded-lg transition flex items-center gap-2 shadow-lg"
+  >
+    <span *ngIf="!downloadingSheet()">📄 Télécharger la fiche officielle PDF</span>
+    <span *ngIf="downloadingSheet()">Génération en cours...</span>
+  </button>
+</div>
+
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
   <!-- Contact -->

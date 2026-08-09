@@ -1,0 +1,43 @@
+<div class="max-w-md mx-auto text-center space-y-6">
+  <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-8">
+    <h2 class="text-white font-semibold text-lg mb-4">🖋 Signature scannée</h2>
+    <p class="text-slate-400 text-sm mb-6">
+      Votre signature apparaîtra sur les documents officiels (contrats, attestations, fiches).
+    </p>
+
+    <div class="mx-auto w-full h-40 rounded-xl overflow-hidden border-2 border-slate-600 mb-6 bg-white flex items-center justify-center p-4">
+      <img
+        *ngIf="previewUrl() as p"
+        [src]="p"
+        class="max-w-full max-h-full object-contain"
+      />
+      <img
+        *ngIf="!previewUrl() && employee.signatureUrl"
+        [src]="signatureUrl"
+        class="max-w-full max-h-full object-contain"
+        (error)="previewUrl.set(null)"
+      />
+      <div *ngIf="!previewUrl() && !employee.signatureUrl" class="text-slate-400">
+        Aucune signature enregistrée
+      </div>
+    </div>
+
+    <label
+      class="inline-block bg-bvad-secondary hover:bg-amber-600 text-white font-semibold px-6 py-3 rounded-lg cursor-pointer transition"
+      [class.opacity-50]="uploading()"
+    >
+      {{ uploading() ? 'Envoi...' : '📤 Uploader signature' }}
+      <input
+        type="file"
+        accept="image/png,image/jpeg"
+        class="hidden"
+        (change)="onFile($event)"
+        [disabled]="uploading()"
+      />
+    </label>
+
+    <p class="text-slate-500 text-xs mt-4">
+      💡 Format recommandé : PNG transparent sur fond blanc
+    </p>
+  </div>
+</div>

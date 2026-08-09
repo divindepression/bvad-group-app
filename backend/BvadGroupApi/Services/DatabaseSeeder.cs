@@ -47,54 +47,98 @@ namespace BvadGroupApi.Services
             _logger.LogInformation("🏢 Création des filiales BVAD GROUP...");
 
             var companies = new List<Company>
-            {
-                new()
-                {
-                    Code = "BVAD_GROUP",
-                    Name = "BVAD GROUP",
-                    Description = "Bâtir. Valoriser. Accompagner. Développer.",
-                    Color = "#1e3a8a",
-                    Logo = "🏢",
-                    IsHolding = true,
-                    DisplayOrder = 0
-                },
-                new()
-                {
-                    Code = "BVAD_AGRO",
-                    Name = "BVAD Agro",
-                    Description = "Agriculture, élevage et production agroalimentaire",
-                    Color = "#16a34a",
-                    Logo = "🌾",
-                    DisplayOrder = 1
-                },
-                new()
-                {
-                    Code = "BVAD_TECH",
-                    Name = "BVAD Tech",
-                    Description = "Solutions technologiques et développement logiciel",
-                    Color = "#0891b2",
-                    Logo = "💻",
-                    DisplayOrder = 2
-                },
-                new()
-                {
-                    Code = "BVAD_SCHOOL",
-                    Name = "BVAD School",
-                    Description = "Formation, éducation et accompagnement pédagogique",
-                    Color = "#ea580c",
-                    Logo = "🎓",
-                    DisplayOrder = 3
-                },
-                new()
-                {
-                    Code = "BVAD_CONSEIL",
-                    Name = "BVAD Conseil",
-                    Description = "Conseil stratégique et accompagnement des entreprises",
-                    Color = "#7c3aed",
-                    Logo = "💼",
-                    DisplayOrder = 4
-                }
-            };
+{
+    new()
+    {
+        Code = "BVAD_GROUP",
+        Name = "BVAD GROUP",
+        LegalName = "BVAD GROUP SARL",
+        Description = "Bâtir. Valoriser. Accompagner. Développer.",
+        Slogan = "Bâtir · Valoriser · Accompagner · Développer",
+        Color = "#1e3a8a",
+        Logo = "🏢",
+        IsHolding = true,
+        DisplayOrder = 0,
+        Address = "BP 12345, Douala",
+        City = "Douala",
+        Country = "Cameroun",
+        Phone = "+237 6 00 00 00 00",
+        Email = "contact@bvad-group.com",
+        Website = "www.bvad-group.com",
+        DirectorName = "Divin BVAD",
+        DirectorTitle = "Président du Groupe",
+        RegistrationNumber = "RC/DLA/2025/A/0001",
+        TaxNumber = "M012500000000A"
+    },
+    new()
+    {
+        Code = "BVAD_AGRO",
+        Name = "BVAD Agro",
+        LegalName = "BVAD AGRO SARL",
+        Description = "Agriculture, élevage et production agroalimentaire",
+        Slogan = "Nourrir · Cultiver · Prospérer",
+        Color = "#16a34a",
+        Logo = "🌾",
+        DisplayOrder = 1,
+        City = "Douala",
+        Country = "Cameroun",
+        Phone = "+237 6 00 00 00 01",
+        Email = "contact@bvad-agro.com",
+        DirectorName = "Jean Kamga",
+        DirectorTitle = "Directeur Général"
+    },
+    new()
+    {
+        Code = "BVAD_TECH",
+        Name = "BVAD Tech",
+        LegalName = "BVAD TECHNOLOGIES SARL",
+        Description = "Solutions technologiques et développement logiciel",
+        Slogan = "Innover · Coder · Transformer",
+        Color = "#0891b2",
+        Logo = "💻",
+        DisplayOrder = 2,
+        City = "Yaoundé",
+        Country = "Cameroun",
+        Phone = "+237 6 00 00 00 02",
+        Email = "contact@bvad-tech.com",
+        DirectorName = "Paul Mbarga",
+        DirectorTitle = "Directeur Technique"
+    },
+    new()
+    {
+        Code = "BVAD_SCHOOL",
+        Name = "BVAD School",
+        LegalName = "BVAD SCHOOL SARL",
+        Description = "Formation, éducation et accompagnement pédagogique",
+        Slogan = "Former · Enseigner · Élever",
+        Color = "#ea580c",
+        Logo = "🎓",
+        DisplayOrder = 3,
+        City = "Douala",
+        Country = "Cameroun",
+        Phone = "+237 6 00 00 00 03",
+        Email = "contact@bvad-school.com",
+        DirectorName = "Christine Bella",
+        DirectorTitle = "Directrice Pédagogique"
+    },
+    new()
+    {
+        Code = "BVAD_CONSEIL",
+        Name = "BVAD Conseil",
+        LegalName = "BVAD CONSEIL SARL",
+        Description = "Conseil stratégique et accompagnement des entreprises",
+        Slogan = "Conseiller · Accompagner · Réussir",
+        Color = "#7c3aed",
+        Logo = "💼",
+        DisplayOrder = 4,
+        City = "Douala",
+        Country = "Cameroun",
+        Phone = "+237 6 00 00 00 04",
+        Email = "contact@bvad-conseil.com",
+        DirectorName = "Aline Tchouameni",
+        DirectorTitle = "Directrice Générale"
+    }
+};
 
             await _context.Companies.AddRangeAsync(companies);
             await _context.SaveChangesAsync();

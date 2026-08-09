@@ -7,8 +7,9 @@ import { TabInfoComponent } from '../tabs/tab-info/tab-info.component';
 import { TabDocumentsComponent } from '../tabs/tab-documents/tab-documents.component';
 import { TabBadgeComponent } from '../tabs/tab-badge/tab-badge.component';
 import { TabIdentityPhotoComponent } from '../tabs/tab-identity-photo/tab-identity-photo.component';
+import { TabSignatureComponent } from '../tabs/tab-signature/tab-signature.component';
 
-type TabId = 'info' | 'documents' | 'badge' | 'photo';
+type TabId = 'info' | 'documents' | 'badge' | 'photo' | 'signature';
 
 @Component({
   selector: 'app-employee-detail',
@@ -16,7 +17,8 @@ type TabId = 'info' | 'documents' | 'badge' | 'photo';
   imports: [
     CommonModule, RouterLink,
     TabInfoComponent, TabDocumentsComponent,
-    TabBadgeComponent, TabIdentityPhotoComponent
+    TabBadgeComponent, TabIdentityPhotoComponent,
+    TabSignatureComponent  
   ],
   templateUrl: './employee-detail.component.html'
 })
@@ -33,7 +35,8 @@ export class EmployeeDetailComponent implements OnInit {
     { id: 'info' as TabId, icon: '📇', label: 'Informations' },
     { id: 'documents' as TabId, icon: '📎', label: 'Documents' },
     { id: 'badge' as TabId, icon: '🎫', label: 'Badge' },
-    { id: 'photo' as TabId, icon: '📸', label: 'Photo identité' }
+    { id: 'photo' as TabId, icon: '📸', label: 'Photo identité' },
+    { id: 'signature' as TabId, icon: '🖋', label: 'Signature' }
   ];
 
   ngOnInit(): void {

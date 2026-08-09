@@ -27,9 +27,24 @@ namespace BvadGroupApi.Data
                 entity.HasIndex(c => c.Code).IsUnique();
                 entity.Property(c => c.Code).HasMaxLength(50).IsRequired();
                 entity.Property(c => c.Name).HasMaxLength(200).IsRequired();
+                entity.Property(c => c.LegalName).HasMaxLength(300);
                 entity.Property(c => c.Color).HasMaxLength(20).IsRequired();
                 entity.Property(c => c.Logo).HasMaxLength(500);
+                entity.Property(c => c.LogoUrl).HasMaxLength(500);
+                entity.Property(c => c.StampUrl).HasMaxLength(500);
+                entity.Property(c => c.DirectorSignatureUrl).HasMaxLength(500);
                 entity.Property(c => c.Description).HasMaxLength(1000);
+                entity.Property(c => c.Slogan).HasMaxLength(300);
+                entity.Property(c => c.RegistrationNumber).HasMaxLength(50);
+                entity.Property(c => c.TaxNumber).HasMaxLength(50);
+                entity.Property(c => c.Address).HasMaxLength(500);
+                entity.Property(c => c.City).HasMaxLength(100);
+                entity.Property(c => c.Country).HasMaxLength(100);
+                entity.Property(c => c.Phone).HasMaxLength(30);
+                entity.Property(c => c.Email).HasMaxLength(200);
+                entity.Property(c => c.Website).HasMaxLength(300);
+                entity.Property(c => c.DirectorName).HasMaxLength(200);
+                entity.Property(c => c.DirectorTitle).HasMaxLength(150);
             });
 
             // ========================================
