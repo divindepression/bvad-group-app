@@ -1,18 +1,16 @@
-<div class="max-w-7xl mx-auto space-y-8">
+<div class="max-w-7xl mx-auto space-y-6" *ngIf="overview() as o">
 
   <!-- ═══════════════════════════════════════
-       🎉 HERO — Salutation
+       🎉 HERO
        ═══════════════════════════════════════ -->
   <section
-    class="rounded-2xl p-6 sm:p-10 border shadow-xl relative overflow-hidden"
+    class="rounded-2xl p-6 sm:p-8 border shadow-2xl"
     [style.background]="'linear-gradient(135deg, ' + (auth.currentCompany()?.color || '#1e3a8a') + '30, transparent)'"
     [style.borderColor]="(auth.currentCompany()?.color || '#1e3a8a') + '50'"
   >
-    <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-6">
-
-      <!-- Logo de la filiale active -->
+    <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5">
       <div
-        class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex items-center justify-center overflow-hidden flex-shrink-0 shadow-lg"
+        class="w-20 h-20 rounded-2xl flex items-center justify-center overflow-hidden shadow-lg flex-shrink-0"
         [style.background]="(auth.currentCompany()?.color || '#1e3a8a') + '30'"
         [style.border]="'2px solid ' + (auth.currentCompany()?.color || '#1e3a8a')"
       >
@@ -20,162 +18,349 @@
           *ngIf="auth.currentCompany() && hasLogo(auth.currentCompany()!.id)"
           [src]="logoUrl(auth.currentCompany()!.id)"
           class="w-full h-full object-contain"
-          alt=""
         />
-        <span
-          *ngIf="!auth.currentCompany() || !hasLogo(auth.currentCompany()!.id)"
-          class="text-5xl"
-        >
+        <span *ngIf="!auth.currentCompany() || !hasLogo(auth.currentCompany()!.id)" class="text-4xl">
           {{ auth.currentCompany()?.logo || '🏢' }}
         </span>
       </div>
-
       <div class="flex-1">
-        <p class="text-slate-400 text-sm capitalize">{{ todayFormatted() }}</p>
-        <h1 class="text-2xl sm:text-4xl font-bold text-white mt-1">
+        <p class="text-slate-400 text-sm capitalize">{{ today() }}</p>
+        <h1 class="text-2xl sm:text-3xl font-bold text-white mt-1">
           {{ greeting() }}, <span class="text-bvad-secondary">{{ auth.currentUser()?.firstName }}</span> 👋
         </h1>
-        <p class="text-slate-300 mt-2">
-          Bienvenue sur <span class="font-semibold text-white">{{ auth.currentCompany()?.name }}</span>
-          <span *ngIf="currentCompanyDetails()?.slogan" class="text-slate-400 italic">
-            — « {{ currentCompanyDetails()?.slogan }} »
-          </span>
+        <p class="text-slate-300 mt-1">
+          Tableau de bord de <span class="text-white font-semibold">{{ auth.currentCompany()?.name }}</span>
         </p>
       </div>
-
     </div>
   </section>
 
   <!-- ═══════════════════════════════════════
-       ⚡ ACTIONS RAPIDES
+       📊 KPIs
+       ═══════════════════════════════════════ -->
+  <section class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+    <!-- Employés -->
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 relative overflow-hidden group hover:border-blue-500/50 transition">
+      <div class="flex items-center justify-between mb-2">
+        <div class="text-3xl">👥</div>
+        <span class="text-green-400 text-xs font-medium">+{{ o.newEmployeesThisMonth }} ce mois</span>
+      </div>
+      <div class="text-slate-400 text-xs uppercase tracking-wider">Employés</div>
+      <div class="text-white text-2xl sm:text-3xl font-bold mt-1">{{ o.activeEmployees }}</div>
+      <div class="text-slate-500 text-xs mt-1">{{ o.totalEmployees }} au total</div>
+    </div>
+
+    <!-- Contrats actifs -->
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 hover:border-purple-500/50 transition">
+      <div class="flex items-center justify-between mb-2">
+        <div class="text-3xl">📄</div>
+        <span
+          *ngIf="o.expiringContracts > 0"
+          class="text-orange-400 text-xs font-medium"
+        >⚠ {{ o.expiringContracts }} expire 30j</span>
+      </div>
+      <div class="text-slate-400 text-xs uppercase tracking-wider">Contrats</div>
+      <div class="text-white text-2xl sm:text-3xl font-bold mt-1">{{ o.activeContracts }}</div>
+      <div class="text-slate-500 text-xs mt-1">{{ o.totalContracts }} au total</div>
+    </div>
+
+    <!-- Congés en cours -->
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 hover:border-cyan-500/50 transition">
+      <div class="flex items-center justify-between mb-2">
+        <div class="text-3xl">🏖</div>
+        <span
+          *ngIf="o.pendingLeaveRequests > 0"
+          class="text-orange-400 text-xs font-medium"
+        >⏳ {{ o.pendingLeaveRequests }} en attente</span>
+      </div>
+      <div class="text-slate-400 text-xs uppercase tracking-wider">Absents aujourd'hui</div>
+      <div class="text-white text-2xl sm:text-3xl font-bold mt-1">{{ o.employeesOnLeaveToday }}</div>
+      <div class="text-slate-500 text-xs mt-1">personne(s)</div>
+    </div>
+
+    <!-- Masse salariale -->
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 hover:border-green-500/50 transition">
+      <div class="flex items-center justify-between mb-2">
+        <div class="text-3xl">💰</div>
+      </div>
+      <div class="text-slate-400 text-xs uppercase tracking-wider">Masse salariale</div>
+      <div class="text-white text-xl sm:text-2xl font-bold mt-1">
+        {{ formatMoney(o.totalMonthlySalary) }}
+      </div>
+      <div class="text-slate-500 text-xs mt-1">FCFA / mois</div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       ⚡ ACCÈS RAPIDE
        ═══════════════════════════════════════ -->
   <section>
-    <h2 class="text-white font-semibold text-lg mb-4 flex items-center gap-2">
-      ⚡ Accès rapide
-    </h2>
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    <h2 class="text-white font-semibold text-lg mb-3">⚡ Accès rapide</h2>
+    <div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
       <a
         *ngFor="let a of quickActions()"
         [routerLink]="a.route"
-        class="bg-slate-800 border border-slate-700 hover:border-bvad-secondary/50 rounded-xl p-4 transition transform hover:scale-105 hover:shadow-2xl text-center group"
+        class="bg-slate-800 border border-slate-700 hover:border-bvad-secondary/50 rounded-xl p-4 text-center transition hover:scale-105"
       >
-        <div
-          class="w-12 h-12 mx-auto rounded-xl flex items-center justify-center text-2xl mb-2 transition group-hover:scale-110"
-          [class]="a.color + '/20 border border-' + a.color.replace('bg-', '') + '/40'"
-        >
-          {{ a.icon }}
-        </div>
-        <div class="text-white text-sm font-medium">{{ a.label }}</div>
+        <div class="text-3xl mb-1">{{ a.icon }}</div>
+        <div class="text-white text-xs font-medium">{{ a.label }}</div>
       </a>
     </div>
   </section>
 
   <!-- ═══════════════════════════════════════
-       📊 STATS RAPIDES
+       📊 GRAPHIQUES (2 colonnes)
        ═══════════════════════════════════════ -->
-  <section class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
+    <!-- Employés par filiale (Doughnut) -->
     <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
-      <div class="flex items-center justify-between">
-        <div>
-          <div class="text-slate-400 text-xs uppercase tracking-wider">Filiale active</div>
-          <div class="text-white font-bold text-2xl mt-1 truncate">
-            {{ auth.currentCompany()?.name }}
+      <h3 class="text-white font-semibold mb-4 flex items-center gap-2">
+        🥧 Employés par filiale
+      </h3>
+      <div class="h-72" *ngIf="employeesByCompany().length > 0; else noData">
+        <canvas
+          baseChart
+          [data]="employeesByCompanyChart()"
+          [options]="doughnutOptions"
+          type="doughnut"
+        ></canvas>
+      </div>
+    </div>
+
+    <!-- Employés par département (Bar) -->
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
+      <h3 class="text-white font-semibold mb-4 flex items-center gap-2">
+        🏛 Employés par département
+      </h3>
+      <div class="h-72" *ngIf="employeesByDept().length > 0; else noData">
+        <canvas
+          baseChart
+          [data]="deptChart()"
+          [options]="barOptions"
+          type="bar"
+        ></canvas>
+      </div>
+    </div>
+
+    <!-- Embauches sur 12 mois (Line) -->
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
+      <h3 class="text-white font-semibold mb-4 flex items-center gap-2">
+        📈 Évolution des embauches (12 mois)
+      </h3>
+      <div class="h-72" *ngIf="hiringTrend().length > 0; else noData">
+        <canvas
+          baseChart
+          [data]="hiringChart()"
+          [options]="lineOptions"
+          type="line"
+        ></canvas>
+      </div>
+    </div>
+
+    <!-- Congés par mois (Stacked Bar) -->
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
+      <h3 class="text-white font-semibold mb-4 flex items-center gap-2">
+        🏖 Congés par mois (12 mois)
+      </h3>
+      <div class="h-72" *ngIf="leavesByMonth().length > 0; else noData">
+        <canvas
+          baseChart
+          [data]="leavesChart()"
+          [options]="stackedBarOptions"
+          type="bar"
+        ></canvas>
+      </div>
+    </div>
+
+    <!-- Types de contrats (Doughnut) -->
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
+      <h3 class="text-white font-semibold mb-4 flex items-center gap-2">
+        📄 Répartition des contrats
+      </h3>
+      <div class="h-72" *ngIf="employeesByContract().length > 0; else noData">
+        <canvas
+          baseChart
+          [data]="contractChart()"
+          [options]="doughnutOptions"
+          type="doughnut"
+        ></canvas>
+      </div>
+    </div>
+
+    <!-- Détail filiales (barres personnalisées) -->
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
+      <h3 class="text-white font-semibold mb-4 flex items-center gap-2">
+        🏢 Détail par filiale
+      </h3>
+      <div class="space-y-3">
+        <div *ngFor="let c of employeesByCompany()" class="space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="text-slate-200 text-sm font-medium flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full" [style.background]="c.companyColor"></span>
+              {{ c.companyName }}
+            </span>
+            <span class="text-slate-400 text-xs">{{ c.count }} emp.</span>
+          </div>
+          <div class="h-2 bg-slate-900 rounded-full overflow-hidden">
+            <div
+              class="h-full transition-all"
+              [style.width.%]="employeesByCompany().length > 0 ? (c.count / Math.max(1, employeesByCompany()[0].count)) * 100 : 0"
+              [style.background]="c.companyColor"
+            ></div>
+          </div>
+          <div class="text-xs text-slate-500">
+            💰 {{ formatMoney(c.totalSalary) }} FCFA/mois
+            <span *ngIf="c.onLeaveCount > 0" class="text-orange-400 ml-2">
+              · 🏖 {{ c.onLeaveCount }} en congé
+            </span>
           </div>
         </div>
-        <div class="text-4xl">🏢</div>
-      </div>
-      <div class="mt-3 text-xs text-slate-500">
-        {{ auth.currentCompany()?.isHolding ? 'Holding du groupe' : 'Filiale opérationnelle' }}
       </div>
     </div>
-
-    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
-      <div class="flex items-center justify-between">
-        <div>
-          <div class="text-slate-400 text-xs uppercase tracking-wider">Employés</div>
-          <div class="text-white font-bold text-2xl mt-1">{{ employeeCount() }}</div>
-        </div>
-        <div class="text-4xl">👥</div>
-      </div>
-      <div class="mt-3 text-xs text-slate-500">
-        {{ auth.currentCompany()?.isHolding ? 'Total du groupe' : 'Dans cette filiale' }}
-      </div>
-    </div>
-
-    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
-      <div class="flex items-center justify-between">
-        <div>
-          <div class="text-slate-400 text-xs uppercase tracking-wider">Votre rôle</div>
-          <div class="text-white font-bold text-2xl mt-1">{{ auth.getCurrentRoleLabel() }}</div>
-        </div>
-        <div class="text-4xl">🎭</div>
-      </div>
-      <div class="mt-3 text-xs text-slate-500">
-        Accès personnalisé à vos données
-      </div>
-    </div>
-
   </section>
 
   <!-- ═══════════════════════════════════════
-       🏢 MES FILIALES (avec vrais logos)
+       ⚠ ALERTES (3 colonnes)
        ═══════════════════════════════════════ -->
-  <section>
-    <h2 class="text-white font-semibold text-lg mb-4 flex items-center gap-2">
-      🏢 Mes filiales
-      <span class="text-sm text-slate-400 font-normal">({{ auth.companies().length }} accès)</span>
-    </h2>
+  <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-      <button
-        *ngFor="let company of auth.companies()"
-        (click)="switchCompany(company)"
-        [class.ring-4]="auth.currentCompany()?.id === company.id"
-        [class.ring-white]="auth.currentCompany()?.id === company.id"
-        class="p-4 rounded-xl transition transform hover:scale-105 hover:shadow-2xl text-white text-center relative overflow-hidden"
-        [style.background]="company.color"
-      >
-        <!-- Logo réel si dispo -->
-        <div class="w-16 h-16 mx-auto mb-2 rounded-lg overflow-hidden bg-white/10 flex items-center justify-center">
-          <img
-            *ngIf="hasLogo(company.id)"
-            [src]="logoUrl(company.id)"
-            class="w-full h-full object-contain p-1"
-            alt=""
-          />
-          <span
-            *ngIf="!hasLogo(company.id)"
-            class="text-4xl"
+    <!-- Contrats expirant -->
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
+      <h3 class="text-white font-semibold mb-4 flex items-center gap-2">
+        ⚠ Contrats à échéance
+        <span
+          *ngIf="expiringContracts().length > 0"
+          class="bg-orange-500/20 text-orange-400 text-xs px-2 py-0.5 rounded-full"
+        >{{ expiringContracts().length }}</span>
+      </h3>
+
+      <div *ngIf="expiringContracts().length === 0" class="text-slate-500 text-sm text-center py-6">
+        ✅ Aucun contrat à échéance prochaine
+      </div>
+
+      <div class="space-y-2 max-h-72 overflow-y-auto">
+        <div
+          *ngFor="let c of expiringContracts()"
+          class="bg-slate-900 border border-slate-700 rounded-lg p-3"
+        >
+          <div class="flex items-start gap-3">
+            <div
+              class="w-2 h-14 rounded-full flex-shrink-0"
+              [style.background]="c.companyColor"
+            ></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-white text-sm font-medium truncate">{{ c.employeeName }}</div>
+              <div class="text-slate-400 text-xs truncate">{{ c.position }}</div>
+              <div class="text-slate-500 text-xs mt-1">
+                {{ c.companyName }} · N° {{ c.contractNumber }}
+              </div>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <div
+                class="text-lg font-bold"
+                [class.text-red-400]="c.daysRemaining < 15"
+                [class.text-orange-400]="c.daysRemaining >= 15 && c.daysRemaining < 30"
+                [class.text-yellow-400]="c.daysRemaining >= 30"
+              >
+                {{ c.daysRemaining }}j
+              </div>
+              <div class="text-slate-500 text-xs">restants</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Anniversaires -->
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
+      <h3 class="text-white font-semibold mb-4 flex items-center gap-2">
+        🎂 Anniversaires à venir
+        <span
+          *ngIf="birthdays().length > 0"
+          class="bg-pink-500/20 text-pink-400 text-xs px-2 py-0.5 rounded-full"
+        >{{ birthdays().length }}</span>
+      </h3>
+
+      <div *ngIf="birthdays().length === 0" class="text-slate-500 text-sm text-center py-6">
+        Aucun anniversaire dans les 30 jours
+      </div>
+
+      <div class="space-y-2 max-h-72 overflow-y-auto">
+        <div
+          *ngFor="let b of birthdays()"
+          class="bg-slate-900 border border-slate-700 rounded-lg p-3 flex items-center gap-3"
+        >
+          <div
+            class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+            [style.background]="b.companyColor"
           >
-            {{ company.logo }}
-          </span>
+            {{ initials(b.employeeName) }}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-white text-sm font-medium truncate">{{ b.employeeName }}</div>
+            <div class="text-slate-400 text-xs truncate">{{ b.position }}</div>
+            <div class="text-slate-500 text-xs">🎂 {{ b.ageThisYear }} ans</div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div class="text-pink-400 text-lg font-bold">
+              {{ b.daysUntil === 0 ? '🎉' : b.daysUntil + 'j' }}
+            </div>
+          </div>
         </div>
-
-        <div class="font-semibold text-sm truncate">{{ company.name }}</div>
-        <div *ngIf="company.isHolding" class="text-xs mt-1 opacity-80">Holding</div>
-      </button>
+      </div>
     </div>
-  </section>
 
-  <!-- ═══════════════════════════════════════
-       💡 CONSEIL DU JOUR
-       ═══════════════════════════════════════ -->
-  <section
-    class="rounded-xl p-5 border-l-4"
-    [style.borderColor]="auth.currentCompany()?.color || '#1e3a8a'"
-    [style.background]="(auth.currentCompany()?.color || '#1e3a8a') + '10'"
-  >
-    <div class="flex items-start gap-3">
-      <div class="text-3xl">💡</div>
-      <div>
-        <h3 class="text-white font-semibold mb-1">Conseil du jour</h3>
-        <p class="text-slate-300 text-sm">
-          Assurez-vous que la charte graphique de chaque filiale (logo, cachet, signature)
-          soit complétée pour générer des documents officiels professionnels.
-        </p>
+    <!-- Absents aujourd'hui -->
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
+      <h3 class="text-white font-semibold mb-4 flex items-center gap-2">
+        🏖 Absents aujourd'hui
+        <span
+          *ngIf="absentToday().length > 0"
+          class="bg-cyan-500/20 text-cyan-400 text-xs px-2 py-0.5 rounded-full"
+        >{{ absentToday().length }}</span>
+      </h3>
+
+      <div *ngIf="absentToday().length === 0" class="text-slate-500 text-sm text-center py-6">
+        ✅ Tout le monde est présent
+      </div>
+
+      <div class="space-y-2 max-h-72 overflow-y-auto">
+        <div
+          *ngFor="let a of absentToday()"
+          class="bg-slate-900 border border-slate-700 rounded-lg p-3 flex items-center gap-3"
+        >
+          <div
+            class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+            [style.background]="a.companyColor"
+          >
+            {{ initials(a.employeeName) }}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-white text-sm font-medium truncate">{{ a.employeeName }}</div>
+            <div class="text-slate-400 text-xs truncate">
+              {{ a.leaveTypeIcon }} {{ a.leaveTypeName }}
+            </div>
+            <div class="text-slate-500 text-xs">
+              Retour dans {{ a.daysLeft }}j
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- Templates -->
+  <ng-template #noData>
+    <div class="h-72 flex items-center justify-center text-slate-500 text-sm">
+      📊 Aucune donnée disponible
+    </div>
+  </ng-template>
+
+</div>
+
+<!-- Loading -->
+<div *ngIf="loading() && !overview()" class="text-center text-slate-400 py-20">
+  <div class="text-6xl mb-3 animate-pulse">📊</div>
+  Chargement du tableau de bord...
 </div>
