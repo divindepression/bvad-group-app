@@ -1,0 +1,105 @@
+<div class="relative">
+
+  <!-- Cloche -->
+  <button
+    (click)="toggle()"
+    class="relative w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-700 transition flex items-center justify-center"
+  >
+    <span class="text-xl">🔔</span>
+
+    <!-- Badge compteur -->
+    <span
+      *ngIf="notif.hasUnread()"
+      class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1 animate-pulse border-2 border-slate-900"
+    >
+      {{ notif.unreadCount() > 99 ? '99+' : notif.unreadCount() }}
+    </span>
+  </button>
+
+  <!-- Dropdown -->
+  <div
+    *ngIf="open()"
+    class="absolute right-0 mt-2 w-80 sm:w-96 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden"
+  >
+    <!-- Header -->
+    <div class="p-4 border-b border-slate-700 flex items-center justify-between">
+      <h3 class="text-white font-semibold flex items-center gap-2">
+        🔔 Notifications
+        <span
+          *ngIf="notif.hasUnread()"
+          class="bg-red-500/20 text-red-400 text-xs px-2 py-0.5 rounded-full"
+        >{{ notif.unreadCount() }} non lues</span>
+      </h3>
+      <button
+        *ngIf="notif.hasUnread()"
+        (click)="markAllRead($event)"
+        class="text-slate-400 hover:text-white text-xs"
+      >
+        ✓ Tout marquer lu
+      </button>
+    </div>
+
+    <!-- Liste -->
+    <div class="max-h-96 overflow-y-auto">
+      <div
+        *ngIf="notif.notifications().length === 0"
+        class="p-8 text-center text-slate-500"
+      >
+        <div class="text-5xl mb-2">🎉</div>
+        <div class="text-sm">Aucune notification</div>
+      </div>
+
+      <button
+        *ngFor="let n of notif.notifications()"
+        (click)="onNotificationClick(n)"
+        class="w-full text-left p-4 border-b border-slate-700 hover:bg-slate-700/50 transition group"
+        [class.bg-slate-700]="!n.isRead"
+      >
+        <div class="flex gap-3">
+          <!-- Icône colorée -->
+          <div
+            class="w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0"
+            [style.background]="n.color + '20'"
+            [style.border]="'1px solid ' + n.color + '60'"
+          >
+            {{ n.icon }}
+          </div>
+
+          <!-- Contenu -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-2">
+              <div class="text-white text-sm font-medium leading-tight">
+                {{ n.title }}
+              </div>
+              <button
+                (click)="delete(n, $event)"
+                class="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition text-xs"
+              >✕</button>
+            </div>
+            <div class="text-slate-400 text-xs mt-1 line-clamp-2">
+              {{ n.message }}
+            </div>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-slate-500 text-xs">{{ formatTime(n.createdAt) }}</span>
+              <span
+                *ngIf="!n.isRead"
+                class="w-2 h-2 rounded-full bg-blue-500"
+                title="Non lu"
+              ></span>
+            </div>
+          </div>
+        </div>
+      </button>
+    </div>
+
+    <!-- Footer -->
+    <div
+      *ngIf="notif.notifications().length > 0"
+      class="p-3 border-t border-slate-700 text-center"
+    >
+      <span class="text-slate-500 text-xs">
+        {{ notif.notifications().length }} notification(s)
+      </span>
+    </div>
+  </div>
+</div>

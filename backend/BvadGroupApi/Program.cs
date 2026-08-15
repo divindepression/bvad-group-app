@@ -62,9 +62,31 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(jwtKey),
             ClockSkew = TimeSpan.Zero
         };
+
+        // ?? Support SignalR (récupérer token depuis query string)
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    path.StartsWithSegments("/hubs"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
+
     });
 
 builder.Services.AddAuthorization();
+
+// ?? SignalR
+builder.Services.AddSignalR();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 // ?? Auth service
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -110,5 +132,7 @@ app.UseCors("AllowAngular");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+app.MapHub<BvadGroupApi.Hubs.NotificationHub>("/hubs/notifications");
 
 app.Run();

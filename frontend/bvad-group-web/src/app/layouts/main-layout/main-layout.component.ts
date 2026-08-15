@@ -8,6 +8,8 @@ import {
 } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { CompanyAccessDto } from '../../core/models/auth.model';
+import { NotificationBellComponent } from '../../shared/components/notification-bell/notification-bell.component';
+import { NotificationToastComponent } from '../../shared/components/notification-toast/notification-toast.component';
 
 interface NavItem {
   icon: string;
@@ -19,7 +21,14 @@ interface NavItem {
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [
+    CommonModule, 
+    RouterOutlet, 
+    RouterLink, 
+    RouterLinkActive,
+    NotificationBellComponent,
+    NotificationToastComponent
+  ],
   templateUrl: './main-layout.component.html',
 })
 export class MainLayoutComponent {

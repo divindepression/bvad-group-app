@@ -17,6 +17,7 @@ namespace BvadGroupApi.Data
         public DbSet<LeaveType> LeaveTypes { get; set; }
         public DbSet<LeaveBalance> LeaveBalances { get; set; }
         public DbSet<LeaveRequest> LeaveRequests { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -275,6 +276,27 @@ namespace BvadGroupApi.Data
                       .WithMany()
                       .HasForeignKey(r => r.ApprovedByUserId)
                       .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            // ========================================
+            // 🔔 Configuration Notification
+            // ========================================
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.Property(n => n.Title).HasMaxLength(300).IsRequired();
+                entity.Property(n => n.Message).HasMaxLength(1000).IsRequired();
+                entity.Property(n => n.Icon).HasMaxLength(20);
+                entity.Property(n => n.Color).HasMaxLength(20);
+                entity.Property(n => n.ActionUrl).HasMaxLength(500);
+                entity.Property(n => n.RelatedEntityType).HasMaxLength(100);
+
+                entity.HasIndex(n => n.UserId);
+                entity.HasIndex(n => new { n.UserId, n.IsRead });
+
+                entity.HasOne(n => n.User)
+                      .WithMany()
+                      .HasForeignKey(n => n.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
         }

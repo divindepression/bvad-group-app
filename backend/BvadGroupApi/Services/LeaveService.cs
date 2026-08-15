@@ -21,11 +21,13 @@ namespace BvadGroupApi.Services
     public class LeaveService : ILeaveService
     {
         private readonly AppDbContext _context;
+        INotificationService _notificationService;
         private readonly ILogger<LeaveService> _logger;
 
-        public LeaveService(AppDbContext context, ILogger<LeaveService> logger)
+        public LeaveService(AppDbContext context,INotificationService notificationService,ILogger<LeaveService> logger)
         {
             _context = context;
+            _notificationService = notificationService;
             _logger = logger;
         }
 
@@ -189,6 +191,18 @@ namespace BvadGroupApi.Services
             _logger.LogInformation("📝 Demande de congé créée : {Employee} - {Type} du {Start} au {End}",
                 employee.FullName, leaveType.Name, dto.StartDate, dto.EndDate);
 
+            // 🔔 Notifier les managers de la filiale
+            await _notificationService.SendToCompanyManagersAsync(
+                employee.CompanyId,
+                NotificationType.LeaveRequestSubmitted,
+                "🏖 Nouvelle demande de congé",
+                $"{employee.FullName} demande {request.DaysCount} jour(s) de {leaveType.Name} du {request.StartDate:dd/MM/yyyy} au {request.EndDate:dd/MM/yyyy}",
+                actionUrl: "/leave-approvals",
+                relatedEntityId: request.Id,
+                relatedEntityType: "LeaveRequest",
+                priority: NotificationPriority.Normal
+            );
+
             return RequestToDto(request);
         }
 
@@ -223,6 +237,23 @@ namespace BvadGroupApi.Services
             _logger.LogInformation("✅ Congé approuvé : {Employee} - {Type}",
                 request.Employee?.FullName, request.LeaveType.Name);
 
+            // 🔔 Notifier l'employé
+            if (request.Employee?.UserId.HasValue == true)
+            {
+                await _notificationService.SendToUserAsync(
+                    request.Employee.UserId.Value,
+                    NotificationType.LeaveRequestApproved,
+                    "✅ Congé approuvé",
+                    $"Votre demande de {request.LeaveType.Name} du {request.StartDate:dd/MM/yyyy} au {request.EndDate:dd/MM/yyyy} a été approuvée." +
+                    (string.IsNullOrEmpty(comment) ? "" : $" Commentaire : {comment}"),
+                    actionUrl: "/my-leaves",
+                    relatedEntityId: request.Id,
+                    relatedEntityType: "LeaveRequest",
+                    companyId: request.CompanyId,
+                    priority: NotificationPriority.Normal
+                );
+            }
+
             return RequestToDto(request);
         }
 
@@ -250,6 +281,22 @@ namespace BvadGroupApi.Services
 
             _logger.LogInformation("❌ Congé refusé : {Employee} - Motif: {Comment}",
                 request.Employee?.FullName, comment);
+
+            // 🔔 Notifier l'employé
+            if (request.Employee?.UserId.HasValue == true)
+            {
+                await _notificationService.SendToUserAsync(
+                    request.Employee.UserId.Value,
+                    NotificationType.LeaveRequestRejected,
+                    "❌ Congé refusé",
+                    $"Votre demande de {request.LeaveType.Name} du {request.StartDate:dd/MM/yyyy} au {request.EndDate:dd/MM/yyyy} a été refusée. Motif : {comment}",
+                    actionUrl: "/my-leaves",
+                    relatedEntityId: request.Id,
+                    relatedEntityType: "LeaveRequest",
+                    companyId: request.CompanyId,
+                    priority: NotificationPriority.High
+                );
+            }
 
             return RequestToDto(request);
         }

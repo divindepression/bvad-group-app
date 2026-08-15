@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -9,8 +9,8 @@ import {
   LoginResponse,
   UserDto
 } from '../models/auth.model';
+import { TokenService } from './token.service';
 
-const TOKEN_KEY = 'bvad_token';
 const USER_KEY = 'bvad_user';
 const COMPANIES_KEY = 'bvad_companies';
 const CURRENT_COMPANY_KEY = 'bvad_current_company';
@@ -18,6 +18,9 @@ const CURRENT_COMPANY_KEY = 'bvad_current_company';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
+  private tokenService = inject(TokenService);
+  private http = inject(HttpClient);
+  private router = inject(Router);
 
   // 🔥 Signals Angular (moderne, réactif)
   currentUser = signal<UserDto | null>(this.getStoredUser());
@@ -27,19 +30,24 @@ export class AuthService {
   // Computed : est-ce que je suis connecté ?
   isLoggedIn = computed(() => !!this.currentUser());
 
-  constructor(private http: HttpClient, private router: Router) {}
+  // 🔔 Événement émis après login/logout (pour SignalR + Notifications)
+  loginSuccess$ = new EventEmitterLike<void>();
+  logoutSuccess$ = new EventEmitterLike<void>();
 
   // ==============================
   // 🔐 Login
   // ==============================
   login(data: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, data).pipe(
-      tap((res) => this.handleLoginSuccess(res))
+      tap((res) => {
+        this.handleLoginSuccess(res);
+        this.loginSuccess$.emit();  // 🔔 Signal pour SignalR
+      })
     );
   }
 
   private handleLoginSuccess(res: LoginResponse): void {
-    localStorage.setItem(TOKEN_KEY, res.token);
+    this.tokenService.setToken(res.token);
     localStorage.setItem(USER_KEY, JSON.stringify(res.user));
     localStorage.setItem(COMPANIES_KEY, JSON.stringify(res.companies));
 
@@ -55,7 +63,9 @@ export class AuthService {
   // 🚪 Logout
   // ==============================
   logout(): void {
-    localStorage.removeItem(TOKEN_KEY);
+    this.logoutSuccess$.emit();  // 🔔 Signal pour SignalR
+
+    this.tokenService.removeToken();
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(COMPANIES_KEY);
     localStorage.removeItem(CURRENT_COMPANY_KEY);
@@ -79,49 +89,48 @@ export class AuthService {
   // 🎫 Token
   // ==============================
   getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    return this.tokenService.getToken();
+  }
+
+  // ==============================
+  // 🎭 Rôle effectif dans la filiale active
+  // ==============================
+  getCurrentRole(): string {
+    const user = this.currentUser();
+    const company = this.currentCompany();
+
+    // SuperAdmin / Admin voient tout partout
+    if (user?.role === 'SuperAdmin' || user?.role === 'Admin') {
+      return user.role;
+    }
+
+    // Sinon → rôle dans la filiale active
+    return company?.role || user?.role || 'User';
+  }
+
+  // ==============================
+  // 🎭 Libellé lisible du rôle
+  // ==============================
+  getCurrentRoleLabel(): string {
+    const role = this.getCurrentRole();
+
+    const labels: Record<string, string> = {
+      SuperAdmin: 'Super Administrateur',
+      Admin: 'Administrateur',
+      User: 'Utilisateur',
+      Director: 'Directeur',
+      Manager: 'Manager',
+      HR: 'Ressources Humaines',
+      Accountant: 'Comptable',
+      Employee: 'Employé'
+    };
+
+    return labels[role] || role;
   }
 
   // ==============================
   // 💾 Storage helpers
   // ==============================
-
-  // ==============================
-// 🎭 Rôle effectif dans la filiale active
-// ==============================
-getCurrentRole(): string {
-  const user = this.currentUser();
-  const company = this.currentCompany();
-
-  // SuperAdmin / Admin voient tout partout
-  if (user?.role === 'SuperAdmin' || user?.role === 'Admin') {
-    return user.role;
-  }
-
-  // Sinon → rôle dans la filiale active
-  return company?.role || user?.role || 'User';
-}
-
-// ==============================
-// 🎭 Libellé lisible du rôle
-// ==============================
-getCurrentRoleLabel(): string {
-  const role = this.getCurrentRole();
-
-  const labels: Record<string, string> = {
-    SuperAdmin: 'Super Administrateur',
-    Admin: 'Administrateur',
-    User: 'Utilisateur',
-    Director: 'Directeur',
-    Manager: 'Manager',
-    HR: 'Ressources Humaines',
-    Accountant: 'Comptable',
-    Employee: 'Employé'
-  };
-
-  return labels[role] || role;
-}
-
   private getStoredUser(): UserDto | null {
     const stored = localStorage.getItem(USER_KEY);
     return stored ? JSON.parse(stored) : null;
@@ -135,5 +144,25 @@ getCurrentRoleLabel(): string {
   private getStoredCurrentCompany(): CompanyAccessDto | null {
     const stored = localStorage.getItem(CURRENT_COMPANY_KEY);
     return stored ? JSON.parse(stored) : null;
+  }
+}
+
+// ==============================
+// 📢 Mini EventEmitter (sans Angular EventEmitter pour rester léger)
+// ==============================
+class EventEmitterLike<T> {
+  private listeners: Array<(value: T) => void> = [];
+
+  subscribe(fn: (value: T) => void): { unsubscribe: () => void } {
+    this.listeners.push(fn);
+    return {
+      unsubscribe: () => {
+        this.listeners = this.listeners.filter(l => l !== fn);
+      }
+    };
+  }
+
+  emit(value: T): void {
+    this.listeners.forEach(fn => fn(value));
   }
 }

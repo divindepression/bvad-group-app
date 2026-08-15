@@ -100,13 +100,18 @@
           </div>
         </div>
 
-        <!-- User avatar (desktop) -->
-        <div class="hidden sm:flex items-center gap-2">
-          <div
-            class="w-9 h-9 rounded-full bg-bvad-secondary flex items-center justify-center text-white font-bold text-sm">
-            {{ auth.currentUser()?.firstName?.charAt(0) }}
-          </div>
-        </div>
+       <!-- Actions droite -->
+<div class="flex items-center gap-3">
+  <!-- 🔔 Cloche notifications -->
+  <app-notification-bell></app-notification-bell>
+
+  <!-- User avatar (desktop) -->
+  <div class="hidden sm:flex items-center gap-2">
+    <div class="w-9 h-9 rounded-full bg-bvad-secondary flex items-center justify-center text-white font-bold text-sm">
+      {{ auth.currentUser()?.firstName?.charAt(0) }}
+    </div>
+  </div>
+</div>
       </div>
     </header>
 
@@ -115,5 +120,8 @@
       <router-outlet></router-outlet>
     </main>
   </div>
+
+  <!-- 🍞 Toast global -->
+<app-notification-toast></app-notification-toast>
 
 </div>
