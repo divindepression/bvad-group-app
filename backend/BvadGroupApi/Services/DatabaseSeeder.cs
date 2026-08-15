@@ -28,6 +28,8 @@ namespace BvadGroupApi.Services
             await SeedCompaniesAsync();
             await SeedSuperAdminAsync();
             await SeedEmployeesAsync();
+            await SeedLeaveTypesAsync();
+            await SeedLeaveBalancesAsync();
 
             await _context.SaveChangesAsync();
             _logger.LogInformation("✅ Seed terminé");
@@ -440,6 +442,198 @@ namespace BvadGroupApi.Services
             await _context.SaveChangesAsync();
 
             _logger.LogInformation("✅ {Count} employés créés", employees.Count);
+        }
+
+        // ================================================
+        // 🏖 SEED DES TYPES DE CONGÉS (norme Congo)
+        // ================================================
+        private async Task SeedLeaveTypesAsync()
+        {
+            if (await _context.LeaveTypes.AnyAsync())
+            {
+                _logger.LogInformation("🏖 Types de congés déjà présents, seed ignoré");
+                return;
+            }
+
+            _logger.LogInformation("🏖 Création des types de congés (norme Congo)...");
+
+            var types = new List<LeaveType>
+    {
+        new()
+        {
+            Code = "CP",
+            Name = "Congés payés annuels",
+            Description = "Congés payés selon Code du travail congolais (2 jours ouvrables/mois)",
+            Icon = "🏖",
+            Color = "#3b82f6",
+            DefaultDaysPerYear = 26,
+            DaysAccruedPerMonth = 2.0m,
+            IsPaid = true,
+            RequiresProof = false,
+            DecrementsBalance = true,
+            DisplayOrder = 1
+        },
+        new()
+        {
+            Code = "MAL",
+            Name = "Congé maladie",
+            Description = "Arrêt maladie sur présentation de certificat médical",
+            Icon = "🤒",
+            Color = "#ef4444",
+            DefaultDaysPerYear = 0, // Pas de quota fixe
+            DaysAccruedPerMonth = 0,
+            IsPaid = true,
+            RequiresProof = true,
+            DecrementsBalance = false, // Pas décompté du solde
+            DisplayOrder = 2
+        },
+        new()
+        {
+            Code = "MAT",
+            Name = "Congé maternité",
+            Description = "15 semaines (6 avant + 9 après accouchement)",
+            Icon = "🤱",
+            Color = "#ec4899",
+            DefaultDaysPerYear = 105,
+            DaysAccruedPerMonth = 0,
+            IsPaid = true,
+            RequiresProof = true,
+            DecrementsBalance = false,
+            DisplayOrder = 3
+        },
+        new()
+        {
+            Code = "PAT",
+            Name = "Congé paternité",
+            Description = "2 jours ouvrables à la naissance",
+            Icon = "👨‍👧",
+            Color = "#8b5cf6",
+            DefaultDaysPerYear = 2,
+            DaysAccruedPerMonth = 0,
+            IsPaid = true,
+            RequiresProof = true,
+            DecrementsBalance = false,
+            DisplayOrder = 4
+        },
+        new()
+        {
+            Code = "MAR",
+            Name = "Congé mariage",
+            Description = "4 jours ouvrables pour mariage de l'employé",
+            Icon = "💒",
+            Color = "#f59e0b",
+            DefaultDaysPerYear = 4,
+            DaysAccruedPerMonth = 0,
+            IsPaid = true,
+            RequiresProof = false,
+            DecrementsBalance = false,
+            DisplayOrder = 5
+        },
+        new()
+        {
+            Code = "DEC",
+            Name = "Congé décès",
+            Description = "3 jours pour décès conjoint/enfant/parent, 2 jours pour frère/sœur/beaux-parents",
+            Icon = "🕊",
+            Color = "#64748b",
+            DefaultDaysPerYear = 3,
+            DaysAccruedPerMonth = 0,
+            IsPaid = true,
+            RequiresProof = false,
+            DecrementsBalance = false,
+            DisplayOrder = 6
+        },
+        new()
+        {
+            Code = "FOR",
+            Name = "Congé formation",
+            Description = "Congé pour formation professionnelle",
+            Icon = "🎓",
+            Color = "#10b981",
+            DefaultDaysPerYear = 0,
+            DaysAccruedPerMonth = 0,
+            IsPaid = true,
+            RequiresProof = true,
+            DecrementsBalance = false,
+            DisplayOrder = 7
+        },
+        new()
+        {
+            Code = "SS",
+            Name = "Congé sans solde",
+            Description = "Congé non rémunéré sur accord employeur",
+            Icon = "🕐",
+            Color = "#94a3b8",
+            DefaultDaysPerYear = 0,
+            DaysAccruedPerMonth = 0,
+            IsPaid = false,
+            RequiresProof = false,
+            DecrementsBalance = false,
+            DisplayOrder = 8
+        }
+    };
+
+            await _context.LeaveTypes.AddRangeAsync(types);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("✅ {Count} types de congés créés", types.Count);
+        }
+
+        // ================================================
+        // 📊 SEED DES SOLDES INITIAUX
+        // ================================================
+        private async Task SeedLeaveBalancesAsync()
+        {
+            if (await _context.LeaveBalances.AnyAsync())
+            {
+                _logger.LogInformation("📊 Soldes de congés déjà présents, seed ignoré");
+                return;
+            }
+
+            _logger.LogInformation("📊 Attribution des soldes de congés initiaux...");
+
+            var employees = await _context.Employees.ToListAsync();
+            var cpType = await _context.LeaveTypes.FirstAsync(t => t.Code == "CP");
+            var year = DateTime.UtcNow.Year;
+
+            var balances = new List<LeaveBalance>();
+
+            foreach (var emp in employees)
+            {
+                // Calculer les jours acquis selon l'ancienneté cette année
+                var monthsWorked = CalculateMonthsWorkedThisYear(emp.HireDate, year);
+                var allocatedDays = Math.Min(26, monthsWorked * cpType.DaysAccruedPerMonth);
+
+                balances.Add(new LeaveBalance
+                {
+                    EmployeeId = emp.Id,
+                    LeaveTypeId = cpType.Id,
+                    Year = year,
+                    AllocatedDays = allocatedDays,
+                    UsedDays = 0,
+                    CarriedOverDays = 0,
+                    Adjustment = 0
+                });
+            }
+
+            await _context.LeaveBalances.AddRangeAsync(balances);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("✅ {Count} soldes CP créés", balances.Count);
+        }
+
+        private int CalculateMonthsWorkedThisYear(DateTime hireDate, int year)
+        {
+            var startOfYear = new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var now = DateTime.UtcNow;
+
+            var start = hireDate > startOfYear ? hireDate : startOfYear;
+            var end = now.Year == year ? now : new DateTime(year, 12, 31, 0, 0, 0, DateTimeKind.Utc);
+
+            if (end < start) return 0;
+
+            var months = (end.Year - start.Year) * 12 + (end.Month - start.Month);
+            return Math.Max(0, months + 1); // +1 pour compter le mois en cours
         }
 
     }

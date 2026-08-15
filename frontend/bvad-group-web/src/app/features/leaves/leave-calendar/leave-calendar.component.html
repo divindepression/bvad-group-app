@@ -1,0 +1,82 @@
+<div class="max-w-7xl mx-auto space-y-4">
+
+  <div class="flex justify-between items-center flex-wrap gap-4">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
+        📅 Calendrier équipe
+      </h1>
+      <p class="text-slate-400 text-sm mt-1">
+        Filiale : <span class="text-white">{{ auth.currentCompany()?.name }}</span>
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button (click)="previousMonth()" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg">◀</button>
+      <button (click)="today()" class="bg-bvad-secondary hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-medium">
+        Aujourd'hui
+      </button>
+      <button (click)="nextMonth()" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg">▶</button>
+    </div>
+  </div>
+
+  <div class="text-center">
+    <h2 class="text-white text-xl font-bold capitalize">{{ monthName }}</h2>
+  </div>
+
+  <div
+    *ngIf="auth.currentCompany()?.isHolding"
+    class="bg-orange-500/10 border border-orange-500/30 text-orange-300 rounded-xl p-4 text-center"
+  >
+    ⚠ Sélectionnez une filiale spécifique pour voir son calendrier congés.
+  </div>
+
+  <div *ngIf="!auth.currentCompany()?.isHolding" class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden">
+
+    <!-- Header jours -->
+    <div class="grid grid-cols-7 border-b border-slate-700">
+      <div *ngFor="let d of ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim']"
+           class="p-3 text-center text-slate-400 text-xs font-semibold uppercase">
+        {{ d }}
+      </div>
+    </div>
+
+    <!-- Grille jours -->
+    <div class="grid grid-cols-7">
+      <div
+        *ngFor="let day of days"
+        class="min-h-[110px] p-2 border-b border-r border-slate-700 relative"
+        [class.bg-slate-900]="!isCurrentMonth(day)"
+        [class.bg-slate-700]="isWeekend(day) && isCurrentMonth(day)"
+        [class.bg-slate-800]="!isWeekend(day) && isCurrentMonth(day)"
+      >
+        <div
+          class="text-xs font-semibold mb-1"
+          [class.text-slate-600]="!isCurrentMonth(day)"
+          [class.text-white]="isCurrentMonth(day) && !isToday(day)"
+        >
+          <span
+            *ngIf="isToday(day)"
+            class="bg-bvad-secondary text-white rounded-full w-6 h-6 inline-flex items-center justify-center"
+          >{{ day.getDate() }}</span>
+          <span *ngIf="!isToday(day)">{{ day.getDate() }}</span>
+        </div>
+
+        <!-- Congés du jour -->
+        <div class="space-y-1">
+          <div
+            *ngFor="let l of leavesOnDay(day)"
+            class="text-xs rounded px-1.5 py-0.5 truncate cursor-help"
+            [style.background]="l.leaveTypeColor + '30'"
+            [style.color]="l.leaveTypeColor"
+            [style.border]="'1px solid ' + l.leaveTypeColor + '60'"
+            [title]="l.employeeName + ' - ' + l.leaveTypeName"
+          >
+            {{ l.leaveTypeIcon }} {{ l.employeeName }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading()" class="text-center text-slate-400 py-4">Chargement...</div>
+</div>

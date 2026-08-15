@@ -72,8 +72,6 @@ namespace BvadGroupApi.Controllers
                     emp.Manager?.FullName,
                     emp.UserId,
                     emp.CreatedAt,
-
-                    // 🆕 NOUVEAUX CHAMPS
                     emp.EmployeeNumber,
                     emp.IdentityPhotoUrl,
                     emp.SignatureUrl,

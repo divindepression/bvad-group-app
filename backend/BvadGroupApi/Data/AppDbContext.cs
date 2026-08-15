@@ -14,6 +14,9 @@ namespace BvadGroupApi.Data
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Contract> Contracts { get; set; }
         public DbSet<EmployeeDocument> EmployeeDocuments { get; set; }
+        public DbSet<LeaveType> LeaveTypes { get; set; }
+        public DbSet<LeaveBalance> LeaveBalances { get; set; }
+        public DbSet<LeaveRequest> LeaveRequests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -198,6 +201,80 @@ namespace BvadGroupApi.Data
                       .WithMany()
                       .HasForeignKey(d => d.EmployeeId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+
+            // ========================================
+            // 🏖 Configuration LeaveType
+            // ========================================
+            modelBuilder.Entity<LeaveType>(entity =>
+            {
+                entity.HasIndex(l => l.Code).IsUnique();
+                entity.Property(l => l.Code).HasMaxLength(20).IsRequired();
+                entity.Property(l => l.Name).HasMaxLength(200).IsRequired();
+                entity.Property(l => l.Description).HasMaxLength(1000);
+                entity.Property(l => l.Icon).HasMaxLength(20);
+                entity.Property(l => l.Color).HasMaxLength(20).IsRequired();
+                entity.Property(l => l.DaysAccruedPerMonth).HasPrecision(5, 2);
+
+                entity.HasOne(l => l.Company)
+                      .WithMany()
+                      .HasForeignKey(l => l.CompanyId)
+                      .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            // ========================================
+            // 📊 Configuration LeaveBalance
+            // ========================================
+            modelBuilder.Entity<LeaveBalance>(entity =>
+            {
+                entity.HasIndex(b => new { b.EmployeeId, b.LeaveTypeId, b.Year }).IsUnique();
+                entity.Property(b => b.AllocatedDays).HasPrecision(6, 2);
+                entity.Property(b => b.UsedDays).HasPrecision(6, 2);
+                entity.Property(b => b.CarriedOverDays).HasPrecision(6, 2);
+                entity.Property(b => b.Adjustment).HasPrecision(6, 2);
+
+                entity.HasOne(b => b.Employee)
+                      .WithMany()
+                      .HasForeignKey(b => b.EmployeeId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(b => b.LeaveType)
+                      .WithMany()
+                      .HasForeignKey(b => b.LeaveTypeId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ========================================
+            // 📝 Configuration LeaveRequest
+            // ========================================
+            modelBuilder.Entity<LeaveRequest>(entity =>
+            {
+                entity.Property(r => r.Reason).HasMaxLength(2000);
+                entity.Property(r => r.ProofDocumentUrl).HasMaxLength(500);
+                entity.Property(r => r.ProofDocumentName).HasMaxLength(300);
+                entity.Property(r => r.ApprovalComment).HasMaxLength(2000);
+                entity.Property(r => r.DaysCount).HasPrecision(6, 2);
+
+                entity.HasOne(r => r.Employee)
+                      .WithMany()
+                      .HasForeignKey(r => r.EmployeeId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(r => r.Company)
+                      .WithMany()
+                      .HasForeignKey(r => r.CompanyId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(r => r.LeaveType)
+                      .WithMany()
+                      .HasForeignKey(r => r.LeaveTypeId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(r => r.ApprovedByUser)
+                      .WithMany()
+                      .HasForeignKey(r => r.ApprovedByUserId)
+                      .OnDelete(DeleteBehavior.SetNull);
             });
 
         }

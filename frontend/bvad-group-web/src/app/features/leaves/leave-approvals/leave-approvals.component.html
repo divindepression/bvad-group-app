@@ -1,0 +1,106 @@
+<div class="max-w-5xl mx-auto space-y-6">
+
+  <div>
+    <h1 class="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
+      ✅ Demandes à approuver
+    </h1>
+    <p class="text-slate-400 text-sm mt-1">
+      Filiale : <span class="text-white">{{ auth.currentCompany()?.name }}</span>
+    </p>
+  </div>
+
+  <div *ngIf="loading()" class="text-center text-slate-400 py-10">Chargement...</div>
+
+  <div
+    *ngIf="!loading() && requests().length === 0"
+    class="bg-slate-800/40 border border-dashed border-slate-700 rounded-xl p-12 text-center text-slate-500"
+  >
+    <div class="text-6xl mb-4">✅</div>
+    <div class="text-lg">Aucune demande en attente</div>
+    <div class="text-sm mt-2">Toutes les demandes ont été traitées.</div>
+  </div>
+
+  <div class="space-y-4" *ngIf="requests().length > 0">
+    <div
+      *ngFor="let r of requests()"
+      class="bg-slate-800 border border-slate-700 rounded-xl p-5 hover:border-orange-500/50 transition"
+    >
+      <div class="flex flex-col md:flex-row gap-4">
+
+        <!-- Avatar + Employé -->
+        <div class="flex items-start gap-3 flex-1">
+          <div
+            class="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0"
+            [style.background]="r.companyColor"
+          >
+            {{ initials(r.employeeName) }}
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-white font-semibold">{{ r.employeeName }}</h3>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="text-2xl">{{ r.leaveTypeIcon }}</span>
+              <span class="text-slate-300">{{ r.leaveTypeName }}</span>
+              <span class="text-slate-500 text-xs">·</span>
+              <span class="text-white font-medium">{{ r.daysCount }} jour(s)</span>
+            </div>
+            <div class="text-slate-400 text-sm mt-1">
+              📅 Du {{ formatDate(r.startDate) }} au {{ formatDate(r.endDate) }}
+            </div>
+            <div *ngIf="r.reason" class="text-slate-500 text-sm mt-2 italic">
+              « {{ r.reason }} »
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-col sm:flex-row md:flex-col gap-2 flex-shrink-0">
+          <button
+            (click)="approve(r)"
+            class="bg-green-500/20 hover:bg-green-500/30 border border-green-500/40 text-green-300 px-4 py-2 rounded-lg text-sm transition font-medium"
+          >
+            ✅ Approuver
+          </button>
+          <button
+            (click)="openReject(r)"
+            class="bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-300 px-4 py-2 rounded-lg text-sm transition font-medium"
+          >
+            ❌ Refuser
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Refus -->
+<div
+  *ngIf="showRejectModal()"
+  class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+>
+  <div class="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-md p-6 space-y-4">
+    <h3 class="text-xl font-bold text-white">❌ Refuser la demande</h3>
+    <p class="text-slate-400 text-sm">
+      Refuser la demande de {{ rejectingRequest()?.employeeName }} ({{ rejectingRequest()?.leaveTypeName }})
+    </p>
+    <div>
+      <label class="text-sm text-slate-300">Motif de refus *</label>
+      <textarea
+        [(ngModel)]="rejectComment" rows="4"
+        placeholder="Expliquez le motif du refus..."
+        class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+      ></textarea>
+    </div>
+    <div class="flex justify-end gap-3">
+      <button (click)="cancelReject()" class="px-4 py-2 text-slate-300 hover:bg-slate-700 rounded-lg">
+        Annuler
+      </button>
+      <button
+        (click)="confirmReject()"
+        [disabled]="!rejectComment.trim()"
+        class="bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-medium"
+      >
+        Confirmer le refus
+      </button>
+    </div>
+  </div>
+</div>

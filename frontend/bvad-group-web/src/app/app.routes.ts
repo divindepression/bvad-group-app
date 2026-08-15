@@ -74,6 +74,27 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'my-leaves',
+        loadComponent: () =>
+          import('./features/leaves/my-leaves/my-leaves.component').then(
+            (m) => m.MyLeavesComponent,
+          ),
+      },
+      {
+        path: 'leave-approvals',
+        loadComponent: () =>
+          import('./features/leaves/leave-approvals/leave-approvals.component').then(
+            (m) => m.LeaveApprovalsComponent,
+          ),
+      },
+      {
+        path: 'leave-calendar',
+        loadComponent: () =>
+          import('./features/leaves/leave-calendar/leave-calendar.component').then(
+            (m) => m.LeaveCalendarComponent,
+          ),
+      },
+      {
         path: 'org-chart',
         loadComponent: () =>
           import('./features/org-chart/org-chart/org-chart.component').then(

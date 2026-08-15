@@ -77,6 +77,7 @@ builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<IEmployeeDocumentService, EmployeeDocumentService>();
 builder.Services.AddScoped<IBadgePdfService, BadgePdfService>();
 builder.Services.AddScoped<IEmployeeSheetPdfService, EmployeeSheetPdfService>();
+builder.Services.AddScoped<ILeaveService, LeaveService>();
 
 
 var app = builder.Build();

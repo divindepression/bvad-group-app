@@ -87,15 +87,18 @@ namespace BvadGroupApi.Services
             return $"{first[0]}.{last}";
         }
 
-        // Mapping simple : rôle filiale → rôle global (basique)
+        // Mapping : rôle filiale → rôle global
         private UserRole MapRole(UserRole companyRole)
         {
+            // On garde le rôle tel quel, sauf pour Employee/User qui reste User
             return companyRole switch
             {
-                UserRole.Director => UserRole.User,   // Reste User global
-                UserRole.Manager => UserRole.User,
-                UserRole.HR => UserRole.User,
-                UserRole.Accountant => UserRole.User,
+                UserRole.Director => UserRole.Director,
+                UserRole.Manager => UserRole.Manager,
+                UserRole.HR => UserRole.HR,
+                UserRole.Accountant => UserRole.Accountant,
+                UserRole.Admin => UserRole.Admin,
+                UserRole.SuperAdmin => UserRole.SuperAdmin,
                 _ => UserRole.User
             };
         }
