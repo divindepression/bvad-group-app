@@ -9,7 +9,7 @@ RUN npm config set fetch-timeout 600000 && \
     npm config set fetch-retries 5
 
 COPY package*.json ./
-RUN npm install --no-audit --no-fund --loglevel=error
+RUN npm install --no-audit --no-fund --loglevel=error --legacy-peer-deps
 
 COPY . .
 RUN npx ng build --configuration production
