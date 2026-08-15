@@ -63,6 +63,7 @@ export class DashboardComponent implements OnInit {
     { icon: '🌳', label: 'Organigramme', route: '/org-chart', color: 'from-emerald-500 to-emerald-700' },
     { icon: '📄', label: 'Contrats', route: '/contracts', color: 'from-purple-500 to-purple-700', roles: ['SuperAdmin', 'Admin', 'Director', 'HR'] },
     { icon: '🏖', label: 'Mes congés', route: '/my-leaves', color: 'from-cyan-500 to-cyan-700' },
+    { icon: '👤', label: 'Clients', route: '/clients', color: 'from-pink-500 to-pink-700', roles: ['SuperAdmin', 'Admin', 'Director', 'HR', 'Manager', 'Accountant'] },
     { icon: '🏢', label: 'Filiales', route: '/companies', color: 'from-slate-500 to-slate-700', roles: ['SuperAdmin', 'Admin'] }
   ];
 

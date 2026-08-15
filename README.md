@@ -74,11 +74,11 @@ Password : Bvad2025!
 - [x] Docker
 - [x] Gestion employés
 - [x] Contrats
-- [ ] Congés
-- [ ] Présences
-- [ ] Dashboard analytique
-- [ ] Notifications SignalR
-- [ ] Export PDF (contrats, bulletins)
+- [x] Congés
+- [x] Présences
+- [x] Dashboard analytique
+- [x] Notifications SignalR
+- [x] Export PDF (contrats, bulletins)
 
 ---
 

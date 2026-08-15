@@ -1,0 +1,268 @@
+<div class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 overflow-y-auto">
+  <div class="bg-slate-800 rounded-2xl border border-slate-700 shadow-2xl w-full max-w-5xl my-8">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between p-6 border-b border-slate-700">
+      <h2 class="text-xl font-bold text-white flex items-center gap-2">
+        {{ quote ? '✏️ Modifier' : '➕ Nouveau' }} devis
+      </h2>
+      <button (click)="cancel()" class="text-slate-400 hover:text-white text-2xl">×</button>
+    </div>
+
+    <!-- Body -->
+    <form (ngSubmit)="submit()" class="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
+
+      <!-- Filiale + Client -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="text-sm text-slate-300">Filiale émettrice *</label>
+          <select
+            [(ngModel)]="form.companyId" name="companyId" required
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-bvad-secondary"
+          >
+            <option value="">-- Sélectionner --</option>
+            <option *ngFor="let c of companies()" [value]="c.id">
+              {{ c.logo }} {{ c.name }}
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label class="text-sm text-slate-300">Client *</label>
+          <select
+            [(ngModel)]="form.clientId" name="clientId" required
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-bvad-secondary"
+          >
+            <option value="">-- Sélectionner --</option>
+            <option *ngFor="let c of clients()" [value]="c.id">
+              {{ c.type === 'Company' ? '🏢' : '👤' }} {{ c.displayName }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Objet -->
+      <div>
+        <label class="text-sm text-slate-300">Objet du devis</label>
+        <input
+          [(ngModel)]="form.subject" name="subject"
+          placeholder="Ex: Développement application web"
+          class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none"
+        />
+      </div>
+
+      <!-- Dates + Devise + TVA -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div>
+          <label class="text-sm text-slate-300">Date d'émission *</label>
+          <input
+            type="date" [(ngModel)]="form.issueDate" name="issueDate" required
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none"
+          />
+        </div>
+        <div>
+          <label class="text-sm text-slate-300">Valable jusqu'au *</label>
+          <input
+            type="date" [(ngModel)]="form.validUntil" name="validUntil" required
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none"
+          />
+        </div>
+        <div>
+          <label class="text-sm text-slate-300">Devise</label>
+          <select
+            [(ngModel)]="form.currency" name="currency"
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none"
+          >
+            <option value="XAF">FCFA</option>
+            <option value="EUR">EUR</option>
+            <option value="USD">USD</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-sm text-slate-300">TVA %</label>
+          <input
+            type="number" [(ngModel)]="form.vatRate" name="vatRate" min="0" max="100" step="0.5"
+            class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none"
+          />
+        </div>
+      </div>
+
+      <!-- ═══════════ LIGNES DYNAMIQUES ═══════════ -->
+      <div class="border-t border-slate-700 pt-4">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-white font-semibold">📋 Lignes du devis</h3>
+          <button
+            type="button"
+            (click)="addLine()"
+            class="bg-bvad-secondary hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-sm"
+          >
+            ➕ Ajouter ligne
+          </button>
+        </div>
+
+        <div class="space-y-2">
+          <div
+            *ngFor="let line of form.lineItems; let i = index"
+            class="bg-slate-900 border border-slate-700 rounded-lg p-3"
+          >
+            <div class="grid grid-cols-12 gap-2 items-start">
+              <!-- Numéro + reorder -->
+              <div class="col-span-12 sm:col-span-1 flex sm:flex-col items-center gap-1">
+                <button
+                  type="button"
+                  (click)="moveUp(i)"
+                  [disabled]="i === 0"
+                  class="text-slate-400 hover:text-white disabled:opacity-30"
+                >▲</button>
+                <span class="text-slate-500 text-xs font-mono">{{ i + 1 }}</span>
+                <button
+                  type="button"
+                  (click)="moveDown(i)"
+                  [disabled]="i === form.lineItems.length - 1"
+                  class="text-slate-400 hover:text-white disabled:opacity-30"
+                >▼</button>
+              </div>
+
+              <!-- Description -->
+              <div class="col-span-12 sm:col-span-4">
+                <input
+                  [(ngModel)]="line.description" [name]="'desc' + i" required
+                  placeholder="Description"
+                  class="w-full px-2 py-1.5 bg-slate-800 border border-slate-600 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-bvad-secondary"
+                />
+              </div>
+
+              <!-- Qté -->
+              <div class="col-span-4 sm:col-span-1">
+                <input
+                  type="number" [(ngModel)]="line.quantity" [name]="'qty' + i"
+                  min="0.01" step="0.01"
+                  placeholder="Qté"
+                  class="w-full px-2 py-1.5 bg-slate-800 border border-slate-600 rounded text-white text-sm text-right focus:outline-none"
+                />
+              </div>
+
+              <!-- Unité -->
+              <div class="col-span-4 sm:col-span-1">
+                <input
+                  [(ngModel)]="line.unit" [name]="'unit' + i"
+                  placeholder="Unité"
+                  class="w-full px-2 py-1.5 bg-slate-800 border border-slate-600 rounded text-white text-sm focus:outline-none"
+                />
+              </div>
+
+              <!-- PU -->
+              <div class="col-span-4 sm:col-span-2">
+                <input
+                  type="number" [(ngModel)]="line.unitPrice" [name]="'pu' + i"
+                  min="0" step="1"
+                  placeholder="P.U. HT"
+                  class="w-full px-2 py-1.5 bg-slate-800 border border-slate-600 rounded text-white text-sm text-right focus:outline-none"
+                />
+              </div>
+
+              <!-- Remise -->
+              <div class="col-span-4 sm:col-span-1">
+                <input
+                  type="number" [(ngModel)]="line.discountPercent" [name]="'disc' + i"
+                  min="0" max="100" step="1"
+                  placeholder="Rem%"
+                  class="w-full px-2 py-1.5 bg-slate-800 border border-slate-600 rounded text-white text-sm text-right focus:outline-none"
+                />
+              </div>
+
+              <!-- Total -->
+              <div class="col-span-6 sm:col-span-1 text-right pt-1.5">
+                <span class="text-white font-semibold text-sm">{{ money(lineTotal(line)) }}</span>
+              </div>
+
+              <!-- Delete -->
+              <div class="col-span-2 sm:col-span-1 text-right">
+                <button
+                  type="button"
+                  (click)="removeLine(i)"
+                  [disabled]="form.lineItems.length === 1"
+                  class="bg-red-500/20 hover:bg-red-500/30 text-red-300 px-2 py-1 rounded text-sm disabled:opacity-30"
+                >🗑</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════ TOTAUX ═══════════ -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Conditions -->
+        <div class="space-y-3">
+          <div>
+            <label class="text-sm text-slate-300">Conditions de paiement</label>
+            <input
+              [(ngModel)]="form.paymentTerms" name="paymentTerms"
+              placeholder="Ex: 30 jours à réception"
+              class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none"
+            />
+          </div>
+          <div>
+            <label class="text-sm text-slate-300">Notes</label>
+            <textarea
+              [(ngModel)]="form.notes" name="notes" rows="3"
+              placeholder="Conditions particulières, précisions..."
+              class="w-full mt-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:outline-none"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Totaux calculés -->
+        <div class="bg-slate-900 rounded-lg p-4 space-y-2 border border-slate-700">
+          <div class="flex justify-between text-slate-300">
+            <span>Sous-total HT</span>
+            <span class="font-medium">{{ money(subtotalHT) }}</span>
+          </div>
+
+          <div>
+            <label class="text-sm text-slate-300">Remise globale %</label>
+            <input
+              type="number" [(ngModel)]="form.discountPercent" name="discountPercent"
+              min="0" max="100" step="1"
+              class="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-600 rounded text-white text-sm text-right focus:outline-none"
+            />
+          </div>
+
+          <div *ngIf="form.discountPercent > 0" class="flex justify-between text-orange-400 text-sm">
+            <span>Remise</span>
+            <span>- {{ money(discountAmount) }}</span>
+          </div>
+
+          <div class="flex justify-between text-slate-300 pt-2 border-t border-slate-700">
+            <span>TVA ({{ form.vatRate }}%)</span>
+            <span>{{ money(vatAmount) }}</span>
+          </div>
+
+          <div class="flex justify-between items-center bg-bvad-secondary/20 rounded p-3 mt-2">
+            <span class="text-white font-bold">TOTAL TTC</span>
+            <span class="text-bvad-secondary text-xl font-bold">{{ money(totalTTC) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Erreur -->
+      <div *ngIf="error()" class="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-2 rounded-lg text-sm">
+        ⚠ {{ error() }}
+      </div>
+    </form>
+
+    <!-- Footer -->
+    <div class="flex justify-end gap-3 p-6 border-t border-slate-700 bg-slate-900/40 rounded-b-2xl">
+      <button (click)="cancel()" class="px-4 py-2 text-slate-300 hover:bg-slate-700 rounded-lg">
+        Annuler
+      </button>
+      <button
+        (click)="submit()"
+        [disabled]="saving()"
+        class="bg-bvad-secondary hover:bg-amber-600 disabled:opacity-50 text-white font-semibold px-6 py-2 rounded-lg"
+      >
+        {{ saving() ? 'Enregistrement...' : (quote ? 'Modifier' : 'Créer le devis') }}
+      </button>
+    </div>
+  </div>
+</div>

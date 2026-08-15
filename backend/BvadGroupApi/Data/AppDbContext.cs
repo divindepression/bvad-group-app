@@ -18,6 +18,12 @@ namespace BvadGroupApi.Data
         public DbSet<LeaveBalance> LeaveBalances { get; set; }
         public DbSet<LeaveRequest> LeaveRequests { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Client> Clients { get; set; }
+        public DbSet<Quote> Quotes { get; set; }
+        public DbSet<QuoteLineItem> QuoteLineItems { get; set; }
+        public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<InvoiceLineItem> InvoiceLineItems { get; set; }
+        public DbSet<Payment> Payments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -49,6 +55,12 @@ namespace BvadGroupApi.Data
                 entity.Property(c => c.Website).HasMaxLength(300);
                 entity.Property(c => c.DirectorName).HasMaxLength(200);
                 entity.Property(c => c.DirectorTitle).HasMaxLength(150);
+                entity.Property(c => c.DefaultVatRate).HasPrecision(5, 2);
+                entity.Property(c => c.DefaultCurrency).HasMaxLength(10);
+                entity.Property(c => c.BankName).HasMaxLength(200);
+                entity.Property(c => c.BankAccountNumber).HasMaxLength(100);
+                entity.Property(c => c.MobileMoneyNumber).HasMaxLength(30);
+                entity.Property(c => c.InvoiceFooter).HasMaxLength(2000);
             });
 
             // ========================================
@@ -297,6 +309,117 @@ namespace BvadGroupApi.Data
                       .WithMany()
                       .HasForeignKey(n => n.UserId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ========================================
+            // 👤 Configuration Client
+            // ========================================
+            modelBuilder.Entity<Client>(entity =>
+            {
+                entity.HasIndex(c => c.ClientCode).IsUnique();
+                entity.Property(c => c.ClientCode).HasMaxLength(50);
+                entity.Property(c => c.Name).HasMaxLength(300).IsRequired();
+                entity.Property(c => c.ContactPerson).HasMaxLength(200);
+                entity.Property(c => c.Position).HasMaxLength(150);
+                entity.Property(c => c.LegalForm).HasMaxLength(50);
+                entity.Property(c => c.RegistrationNumber).HasMaxLength(50);
+                entity.Property(c => c.TaxNumber).HasMaxLength(50);
+                entity.Property(c => c.Capital).HasPrecision(18, 2);
+                entity.Property(c => c.Email).HasMaxLength(200);
+                entity.Property(c => c.Phone).HasMaxLength(30);
+                entity.Property(c => c.SecondaryPhone).HasMaxLength(30);
+                entity.Property(c => c.Website).HasMaxLength(300);
+                entity.Property(c => c.Address).HasMaxLength(500);
+                entity.Property(c => c.City).HasMaxLength(100);
+                entity.Property(c => c.Country).HasMaxLength(100);
+                entity.Property(c => c.PostalCode).HasMaxLength(20);
+                entity.Property(c => c.Notes).HasMaxLength(2000);
+            });
+
+            // ========================================
+            // 📝 Configuration Quote
+            // ========================================
+            modelBuilder.Entity<Quote>(entity =>
+            {
+                entity.HasIndex(q => q.QuoteNumber).IsUnique();
+                entity.Property(q => q.QuoteNumber).HasMaxLength(100).IsRequired();
+                entity.Property(q => q.Currency).HasMaxLength(10);
+                entity.Property(q => q.VatRate).HasPrecision(5, 2);
+                entity.Property(q => q.Subject).HasMaxLength(500);
+                entity.Property(q => q.Notes).HasMaxLength(2000);
+                entity.Property(q => q.PaymentTerms).HasMaxLength(1000);
+                entity.Property(q => q.SubtotalHT).HasPrecision(18, 2);
+                entity.Property(q => q.VatAmount).HasPrecision(18, 2);
+                entity.Property(q => q.TotalTTC).HasPrecision(18, 2);
+                entity.Property(q => q.DiscountPercent).HasPrecision(5, 2);
+                entity.Property(q => q.DiscountAmount).HasPrecision(18, 2);
+                entity.Property(q => q.RejectionReason).HasMaxLength(1000);
+
+                entity.HasOne(q => q.Company).WithMany().HasForeignKey(q => q.CompanyId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(q => q.Client).WithMany().HasForeignKey(q => q.ClientId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(q => q.CreatedByUser).WithMany().HasForeignKey(q => q.CreatedByUserId).OnDelete(DeleteBehavior.SetNull);
+            });
+
+            modelBuilder.Entity<QuoteLineItem>(entity =>
+            {
+                entity.Property(l => l.Description).HasMaxLength(500).IsRequired();
+                entity.Property(l => l.Unit).HasMaxLength(30);
+                entity.Property(l => l.Quantity).HasPrecision(10, 2);
+                entity.Property(l => l.UnitPrice).HasPrecision(18, 2);
+                entity.Property(l => l.DiscountPercent).HasPrecision(5, 2);
+
+                entity.HasOne(l => l.Quote).WithMany(q => q.LineItems).HasForeignKey(l => l.QuoteId).OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ========================================
+            // 🧾 Configuration Invoice
+            // ========================================
+            modelBuilder.Entity<Invoice>(entity =>
+            {
+                entity.HasIndex(i => i.InvoiceNumber).IsUnique();
+                entity.Property(i => i.InvoiceNumber).HasMaxLength(100).IsRequired();
+                entity.Property(i => i.Currency).HasMaxLength(10);
+                entity.Property(i => i.VatRate).HasPrecision(5, 2);
+                entity.Property(i => i.Subject).HasMaxLength(500);
+                entity.Property(i => i.Notes).HasMaxLength(2000);
+                entity.Property(i => i.PaymentTerms).HasMaxLength(1000);
+                entity.Property(i => i.SubtotalHT).HasPrecision(18, 2);
+                entity.Property(i => i.VatAmount).HasPrecision(18, 2);
+                entity.Property(i => i.TotalTTC).HasPrecision(18, 2);
+                entity.Property(i => i.DiscountPercent).HasPrecision(5, 2);
+                entity.Property(i => i.DiscountAmount).HasPrecision(18, 2);
+                entity.Property(i => i.AmountPaid).HasPrecision(18, 2);
+
+                entity.HasOne(i => i.Company).WithMany().HasForeignKey(i => i.CompanyId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(i => i.Client).WithMany().HasForeignKey(i => i.ClientId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(i => i.FromQuote).WithMany().HasForeignKey(i => i.FromQuoteId).OnDelete(DeleteBehavior.SetNull);
+                entity.HasOne(i => i.CreatedByUser).WithMany().HasForeignKey(i => i.CreatedByUserId).OnDelete(DeleteBehavior.SetNull);
+            });
+
+            modelBuilder.Entity<InvoiceLineItem>(entity =>
+            {
+                entity.Property(l => l.Description).HasMaxLength(500).IsRequired();
+                entity.Property(l => l.Unit).HasMaxLength(30);
+                entity.Property(l => l.Quantity).HasPrecision(10, 2);
+                entity.Property(l => l.UnitPrice).HasPrecision(18, 2);
+                entity.Property(l => l.DiscountPercent).HasPrecision(5, 2);
+
+                entity.HasOne(l => l.Invoice).WithMany(i => i.LineItems).HasForeignKey(l => l.InvoiceId).OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ========================================
+            // 💳 Configuration Payment
+            // ========================================
+            modelBuilder.Entity<Payment>(entity =>
+            {
+                entity.Property(p => p.PaymentNumber).HasMaxLength(100);
+                entity.Property(p => p.Amount).HasPrecision(18, 2);
+                entity.Property(p => p.Currency).HasMaxLength(10);
+                entity.Property(p => p.Reference).HasMaxLength(200);
+                entity.Property(p => p.Notes).HasMaxLength(1000);
+
+                entity.HasOne(p => p.Invoice).WithMany(i => i.Payments).HasForeignKey(p => p.InvoiceId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(p => p.RecordedByUser).WithMany().HasForeignKey(p => p.RecordedByUserId).OnDelete(DeleteBehavior.SetNull);
             });
 
         }

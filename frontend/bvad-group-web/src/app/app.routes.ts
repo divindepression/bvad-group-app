@@ -88,6 +88,34 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'clients',
+        loadComponent: () =>
+          import('./features/billing/clients/client-list/client-list.component').then(
+            (m) => m.ClientListComponent,
+          ),
+      },
+      {
+        path: 'invoices',
+        loadComponent: () =>
+          import('./features/billing/invoices/invoice-list/invoice-list.component').then(
+            (m) => m.InvoiceListComponent,
+          ),
+      },
+      {
+        path: 'invoices/:id',
+        loadComponent: () =>
+          import('./features/billing/invoices/invoice-detail/invoice-detail.component').then(
+            (m) => m.InvoiceDetailComponent,
+          ),
+      },
+      {
+        path: 'quotes',
+        loadComponent: () =>
+          import('./features/billing/quotes/quote-list/quote-list.component').then(
+            (m) => m.QuoteListComponent,
+          ),
+      },
+      {
         path: 'leave-calendar',
         loadComponent: () =>
           import('./features/leaves/leave-calendar/leave-calendar.component').then(

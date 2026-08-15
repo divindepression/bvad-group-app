@@ -1,0 +1,216 @@
+<div class="max-w-5xl mx-auto space-y-6" *ngIf="invoice() as inv">
+
+  <!-- Retour -->
+  <a routerLink="/invoices" class="text-slate-400 hover:text-white text-sm inline-flex items-center gap-2">
+    ← Retour aux factures
+  </a>
+
+  <!-- Hero -->
+  <div
+    class="rounded-2xl border overflow-hidden"
+    [style.borderColor]="inv.companyColor + '50'"
+  >
+    <div class="h-2" [style.background]="inv.companyColor"></div>
+
+    <div class="p-6 bg-slate-800">
+      <div class="flex flex-col sm:flex-row justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3 flex-wrap">
+            <h1 class="text-2xl sm:text-3xl font-bold text-white font-mono">{{ inv.invoiceNumber }}</h1>
+            <span
+              class="text-xs px-2 py-1 rounded-full border"
+              [ngClass]="statusColor(inv.status)"
+            >
+              {{ statusLabel(inv.status) }}
+            </span>
+            <span *ngIf="inv.isOverdue" class="text-xs px-2 py-1 rounded-full bg-red-500/20 text-red-400 animate-pulse">
+              🚨 En retard de {{ inv.daysOverdue }}j
+            </span>
+          </div>
+          <div class="text-slate-300 text-lg mt-2">{{ inv.clientDisplayName }}</div>
+          <div *ngIf="inv.subject" class="text-slate-400 mt-1">📌 {{ inv.subject }}</div>
+        </div>
+
+        <div class="text-right">
+          <div class="text-slate-400 text-xs uppercase">Total TTC</div>
+          <div class="text-3xl font-bold text-white">{{ money(inv.totalTTC) }}</div>
+          <div *ngIf="inv.amountDue > 0" class="text-orange-400 text-sm mt-1">
+            Reste dû: {{ money(inv.amountDue) }}
+          </div>
+          <div *ngIf="inv.amountDue === 0 && inv.amountPaid > 0" class="text-green-400 text-sm mt-1">
+            ✅ Entièrement payée
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-slate-700">
+        <button
+          (click)="downloadPdf()"
+          class="bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/40 text-blue-300 px-4 py-2 rounded-lg text-sm font-medium"
+        >
+          📥 Télécharger PDF
+        </button>
+
+        <button
+          *ngIf="inv.status === 'Draft'"
+          (click)="issue()"
+          class="bg-green-500/20 hover:bg-green-500/30 border border-green-500/40 text-green-300 px-4 py-2 rounded-lg text-sm font-medium"
+        >
+          📧 Émettre la facture
+        </button>
+
+        <button
+          *ngIf="inv.status !== 'Draft' && inv.status !== 'Paid' && inv.status !== 'Cancelled' && inv.amountDue > 0"
+          (click)="showPaymentForm.set(true)"
+          class="bg-bvad-secondary hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium"
+        >
+          💳 Enregistrer un paiement
+        </button>
+
+        <button
+          *ngIf="inv.status !== 'Draft' && inv.status !== 'Paid' && inv.status !== 'Cancelled'"
+          (click)="cancel()"
+          class="bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-300 px-4 py-2 rounded-lg text-sm"
+        >
+          🚫 Annuler
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Infos + Client -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
+      <h3 class="text-white font-semibold mb-3">📅 Dates</h3>
+      <div class="space-y-2 text-sm">
+        <div class="flex justify-between">
+          <span class="text-slate-400">Émission</span>
+          <span class="text-white">{{ formatDate(inv.issueDate) }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Échéance</span>
+          <span [class.text-red-400]="inv.isOverdue" class="text-white">{{ formatDate(inv.dueDate) }}</span>
+        </div>
+        <div *ngIf="inv.paidAt" class="flex justify-between">
+          <span class="text-slate-400">Payée le</span>
+          <span class="text-green-400">{{ formatDate(inv.paidAt) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
+      <h3 class="text-white font-semibold mb-3">💰 Montants</h3>
+      <div class="space-y-2 text-sm">
+        <div class="flex justify-between">
+          <span class="text-slate-400">Sous-total HT</span>
+          <span class="text-white">{{ money(inv.subtotalHT) }}</span>
+        </div>
+        <div *ngIf="inv.discountAmount > 0" class="flex justify-between text-orange-400">
+          <span>Remise ({{ inv.discountPercent }}%)</span>
+          <span>- {{ money(inv.discountAmount) }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">TVA ({{ inv.vatRate }}%)</span>
+          <span class="text-white">{{ money(inv.vatAmount) }}</span>
+        </div>
+        <div class="flex justify-between pt-2 border-t border-slate-700 font-bold">
+          <span class="text-white">Total TTC</span>
+          <span class="text-white">{{ money(inv.totalTTC) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lignes -->
+  <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
+    <h3 class="text-white font-semibold mb-3">📋 Détail des lignes</h3>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="text-slate-400 border-b border-slate-700">
+          <tr>
+            <th class="text-left py-2 px-2">#</th>
+            <th class="text-left py-2 px-2">Description</th>
+            <th class="text-right py-2 px-2">Qté</th>
+            <th class="text-left py-2 px-2">Unité</th>
+            <th class="text-right py-2 px-2">P.U. HT</th>
+            <th class="text-right py-2 px-2">Rem.</th>
+            <th class="text-right py-2 px-2">Total HT</th>
+          </tr>
+        </thead>
+        <tbody class="text-slate-200">
+          <tr *ngFor="let line of inv.lineItems" class="border-b border-slate-700/50">
+            <td class="py-2 px-2 text-slate-500">{{ line.order }}</td>
+            <td class="py-2 px-2">{{ line.description }}</td>
+            <td class="py-2 px-2 text-right">{{ line.quantity }}</td>
+            <td class="py-2 px-2 text-slate-400">{{ line.unit }}</td>
+            <td class="py-2 px-2 text-right">{{ money(line.unitPrice) }}</td>
+            <td class="py-2 px-2 text-right">{{ line.discountPercent }}%</td>
+            <td class="py-2 px-2 text-right font-semibold">{{ money(line.lineTotal || 0) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Paiements -->
+  <div class="bg-slate-800 border border-slate-700 rounded-xl p-5">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-white font-semibold">💳 Historique des paiements</h3>
+      <span class="text-slate-400 text-sm">
+        {{ inv.payments.length }} paiement(s)
+      </span>
+    </div>
+
+    <div *ngIf="inv.payments.length === 0" class="text-center text-slate-500 py-6 text-sm">
+      Aucun paiement enregistré
+    </div>
+
+    <div class="space-y-2" *ngIf="inv.payments.length > 0">
+      <div
+        *ngFor="let p of inv.payments"
+        class="bg-slate-900 border border-slate-700 rounded-lg p-3 flex items-center gap-3"
+      >
+        <div class="text-2xl">
+          {{ paymentMethodLabel(p.method).charAt(0) }}
+        </div>
+        <div class="flex-1">
+          <div class="text-white font-semibold">{{ money(p.amount) }}</div>
+          <div class="text-slate-400 text-xs">
+            {{ paymentMethodLabel(p.method) }}
+            <span *ngIf="p.mobileMoneyOperator && p.mobileMoneyOperator !== 'None'">
+              ({{ p.mobileMoneyOperator }})
+            </span>
+            · {{ formatDate(p.paymentDate) }}
+          </div>
+          <div *ngIf="p.reference" class="text-slate-500 text-xs font-mono">Réf: {{ p.reference }}</div>
+        </div>
+        <div class="flex gap-2">
+          <button
+            (click)="downloadReceipt(p)"
+            class="bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 px-3 py-1.5 rounded text-xs"
+            title="Télécharger reçu"
+          >
+            📥 Reçu
+          </button>
+          <button
+            (click)="deletePayment(p)"
+            class="bg-red-500/20 hover:bg-red-500/30 text-red-300 px-3 py-1.5 rounded text-xs"
+          >
+            🗑
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div *ngIf="loading()" class="text-center text-slate-400 py-16">Chargement...</div>
+
+<!-- Modal paiement -->
+<app-payment-form
+  *ngIf="showPaymentForm() && invoice() as inv"
+  [invoice]="inv"
+  (closed)="onPaymentClosed($event)"
+></app-payment-form>

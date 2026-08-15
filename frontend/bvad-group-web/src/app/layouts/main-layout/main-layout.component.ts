@@ -60,6 +60,9 @@ export class MainLayoutComponent {
       roles: ['SuperAdmin', 'Admin', 'Director', 'HR', 'Manager'],
     },
     { icon: '📅', label: 'Calendrier', route: '/leave-calendar' },
+    { icon: '👤', label: 'Clients', route: '/clients', roles: ['SuperAdmin', 'Admin', 'Director', 'HR', 'Manager', 'Accountant'] },
+    { icon: '📝', label: 'Devis', route: '/quotes', roles: ['SuperAdmin', 'Admin', 'Director', 'HR', 'Manager', 'Accountant'] },
+    { icon: '🧾', label: 'Factures', route: '/invoices', roles: ['SuperAdmin', 'Admin', 'Director', 'HR', 'Manager', 'Accountant'] },
     {
       icon: '🏢',
       label: 'Filiales',

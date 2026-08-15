@@ -44,6 +44,14 @@
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        // 💰 Facturation
+        public decimal DefaultVatRate { get; set; } = 18m;  // TVA par défaut (18% Congo)
+        public string DefaultCurrency { get; set; } = "XAF";  // FCFA
+        public string? BankName { get; set; }
+        public string? BankAccountNumber { get; set; }
+        public string? MobileMoneyNumber { get; set; }
+        public string? InvoiceFooter { get; set; }  // Mentions légales bas de facture
+
         // Navigation
         public ICollection<UserCompany> UserCompanies { get; set; } = new List<UserCompany>();
     }

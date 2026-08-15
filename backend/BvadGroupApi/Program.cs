@@ -103,6 +103,19 @@ builder.Services.AddScoped<ILeaveService, LeaveService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 
+// ?? Facturation
+builder.Services.AddScoped<IBillingNumberService, BillingNumberService>();
+builder.Services.AddScoped<IClientService, ClientService>();
+builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+builder.Services.AddScoped<IQuoteService, QuoteService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+// ?? PDFs facturation
+builder.Services.AddScoped<IQuotePdfService, QuotePdfService>();
+builder.Services.AddScoped<IInvoicePdfService, InvoicePdfService>();
+builder.Services.AddScoped<IReceiptPdfService, ReceiptPdfService>();
+
+
 var app = builder.Build();
 
 // ========================================

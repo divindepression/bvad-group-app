@@ -1,0 +1,188 @@
+<div class="max-w-7xl mx-auto space-y-6">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
+        📝 Devis
+      </h1>
+      <p class="text-slate-400 text-sm mt-1">
+        Filiale : <span class="text-white">{{ auth.currentCompany()?.name }}</span>
+      </p>
+    </div>
+
+    <button
+      (click)="openAdd()"
+      class="bg-bvad-secondary hover:bg-amber-600 text-white font-semibold px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-lg"
+    >
+      ➕ Nouveau devis
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-4">
+      <div class="text-slate-400 text-xs uppercase">Total</div>
+      <div class="text-2xl font-bold text-white mt-1">{{ totalCount() }}</div>
+    </div>
+    <div class="bg-slate-500/10 border border-slate-500/30 rounded-xl p-4">
+      <div class="text-slate-400 text-xs uppercase">Brouillons</div>
+      <div class="text-2xl font-bold text-white mt-1">{{ draftCount() }}</div>
+    </div>
+    <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+      <div class="text-blue-400 text-xs uppercase">Envoyés</div>
+      <div class="text-2xl font-bold text-white mt-1">{{ sentCount() }}</div>
+    </div>
+    <div class="bg-green-500/10 border border-green-500/30 rounded-xl p-4">
+      <div class="text-green-400 text-xs uppercase">Acceptés</div>
+      <div class="text-2xl font-bold text-white mt-1">{{ acceptedCount() }}</div>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="bg-slate-800/60 rounded-xl p-4 border border-slate-700">
+    <select
+      [ngModel]="statusFilter()"
+      (ngModelChange)="statusFilter.set($event); load()"
+      class="px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white"
+    >
+      <option value="">Tous les statuts</option>
+      <option value="Draft">Brouillons</option>
+      <option value="Sent">Envoyés</option>
+      <option value="Accepted">Acceptés</option>
+      <option value="Rejected">Refusés</option>
+      <option value="Expired">Expirés</option>
+      <option value="Converted">Convertis</option>
+    </select>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading()" class="text-center text-slate-400 py-10">Chargement...</div>
+
+  <!-- Empty -->
+  <div
+    *ngIf="!loading() && quotes().length === 0"
+    class="bg-slate-800/40 border border-dashed border-slate-700 rounded-xl p-12 text-center text-slate-500"
+  >
+    <div class="text-6xl mb-3">📝</div>
+    <div>Aucun devis pour cette filiale.</div>
+    <button (click)="openAdd()" class="mt-4 text-bvad-secondary hover:underline">
+      ➕ Créer le premier devis
+    </button>
+  </div>
+
+  <!-- Liste -->
+  <div class="space-y-3" *ngIf="quotes().length > 0">
+    <div
+      *ngFor="let q of quotes()"
+      class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden hover:border-bvad-secondary/50 transition"
+    >
+      <div class="h-1" [style.background]="q.companyColor"></div>
+
+      <div class="p-5">
+        <div class="flex flex-col md:flex-row justify-between gap-4">
+
+          <!-- Infos principales -->
+          <div class="flex-1">
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="text-white font-bold font-mono">{{ q.quoteNumber }}</span>
+              <span
+                class="text-xs px-2 py-0.5 rounded-full border"
+                [ngClass]="statusColor(q.status)"
+              >
+                {{ statusLabel(q.status) }}
+              </span>
+              <span
+                *ngIf="q.isExpired && q.status !== 'Converted'"
+                class="text-xs px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400"
+              >
+                ⚠ Expiré
+              </span>
+            </div>
+
+            <div class="text-white text-lg font-medium mt-1">{{ q.clientDisplayName }}</div>
+            <div *ngIf="q.subject" class="text-slate-400 text-sm mt-1">📌 {{ q.subject }}</div>
+
+            <div class="flex flex-wrap gap-3 mt-2 text-sm text-slate-400">
+              <span>📅 Émis: {{ formatDate(q.issueDate) }}</span>
+              <span>⏰ Valable: {{ formatDate(q.validUntil) }}</span>
+              <span>🏢 {{ q.companyName }}</span>
+            </div>
+          </div>
+
+          <!-- Montant -->
+          <div class="text-right">
+            <div class="text-slate-400 text-xs uppercase">Total TTC</div>
+            <div class="text-2xl font-bold text-white">{{ money(q.totalTTC, q.currency) }}</div>
+            <div class="text-slate-500 text-xs">HT: {{ money(q.subtotalHT, q.currency) }}</div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-wrap gap-2 pt-4 mt-4 border-t border-slate-700">
+          <button
+            (click)="downloadPdf(q)"
+            class="bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/40 text-blue-300 text-sm px-3 py-1.5 rounded-lg"
+          >
+            📥 PDF
+          </button>
+
+          <button
+            *ngIf="q.status === 'Draft'"
+            (click)="openEdit(q)"
+            class="bg-slate-700 hover:bg-slate-600 text-white text-sm px-3 py-1.5 rounded-lg"
+          >
+            ✏️ Modifier
+          </button>
+
+          <button
+            *ngIf="q.status === 'Draft'"
+            (click)="markAsSent(q)"
+            class="bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/40 text-blue-300 text-sm px-3 py-1.5 rounded-lg"
+          >
+            📧 Marquer envoyé
+          </button>
+
+          <button
+            *ngIf="q.status === 'Sent'"
+            (click)="markAsAccepted(q)"
+            class="bg-green-500/20 hover:bg-green-500/30 border border-green-500/40 text-green-300 text-sm px-3 py-1.5 rounded-lg"
+          >
+            ✅ Accepter
+          </button>
+
+          <button
+            *ngIf="q.status === 'Sent'"
+            (click)="markAsRejected(q)"
+            class="bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-300 text-sm px-3 py-1.5 rounded-lg"
+          >
+            ❌ Refuser
+          </button>
+
+          <button
+            *ngIf="q.status === 'Accepted'"
+            (click)="convertToInvoice(q)"
+            class="bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-300 text-sm px-3 py-1.5 rounded-lg font-medium"
+          >
+            🔄 Convertir en facture
+          </button>
+
+          <button
+            *ngIf="q.status === 'Draft'"
+            (click)="delete(q)"
+            class="bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-300 text-sm px-3 py-1.5 rounded-lg ml-auto"
+          >
+            🗑
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal formulaire -->
+<app-quote-form
+  *ngIf="showForm()"
+  [quote]="editingQuote()"
+  (closed)="onFormClosed($event)"
+></app-quote-form>
