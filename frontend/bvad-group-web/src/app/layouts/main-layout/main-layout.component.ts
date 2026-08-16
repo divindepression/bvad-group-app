@@ -10,6 +10,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { CompanyAccessDto } from '../../core/models/auth.model';
 import { NotificationBellComponent } from '../../shared/components/notification-bell/notification-bell.component';
 import { NotificationToastComponent } from '../../shared/components/notification-toast/notification-toast.component';
+import { InstallPromptComponent } from '../../shared/components/install-prompt/install-prompt.component';
 
 interface NavItem {
   icon: string;
@@ -27,7 +28,8 @@ interface NavItem {
     RouterLink, 
     RouterLinkActive,
     NotificationBellComponent,
-    NotificationToastComponent
+    NotificationToastComponent,
+    InstallPromptComponent
   ],
   templateUrl: './main-layout.component.html',
 })
